@@ -7,14 +7,14 @@ from PIL import Image
 from ...ch_order import ChannelOrder
 from ...container import ImageContainer
 from ...format import ImageFormat
-from .mixin.convert import PILConvertMixin
 from .mixin.geometry import PILGeometryMixin
+from .mixin.stats import PILStatsMixin
 from .protocol import SupportsPILGeometry
 
 
 class PILImageContainer(
     PILGeometryMixin,
-    PILConvertMixin,
+    PILStatsMixin,
     ImageContainer[Image.Image],
     SupportsPILGeometry,
 ):

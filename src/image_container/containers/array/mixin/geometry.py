@@ -75,9 +75,9 @@ class ArrayGeometryMixin:
         Returns
         -------
         tuple[int, int]
-            The size (height, width) of the image.
+            The size (width, height), matching PIL Image.size.
         """
-        return self.shape[:2]
+        return (self.width, self.height)
 
     @property
     def ch(self) -> int:

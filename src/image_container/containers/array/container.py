@@ -10,11 +10,13 @@ from ...container import ImageContainer
 from ...format import ImageFormat
 from .mixin.geometry import ArrayGeometryMixin
 from .mixin.process import ArrayProcessMixin
+from .mixin.stats import ArrayStatsMixin
 from .protocol import SupportsArrayProcess
 
 
 class ArrayImageContainer(
     ArrayGeometryMixin,
+    ArrayStatsMixin,
     ArrayProcessMixin,
     ImageContainer[np.ndarray],
     SupportsArrayProcess,

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import cv2
 import numpy as np
 from PIL import Image
 
@@ -19,6 +18,25 @@ class ArrayConvertMixin:
     value: np.ndarray
     channel_order: ChannelOrder
 
+    def to_gray(self) -> np.ndarray:
+        """
+        Grayscale plane (H, W).
+
+        Same pixel values as to_array(ChannelOrder.GRAY).
+        """
+        return self.to_array(ChannelOrder.GRAY)
+
+    def to_3ch(self) -> np.ndarray:
+        """
+        Three-channel array (H, W, 3).
+
+        If the container is already RGB/BGR/HSV, returns a copy of value.
+        If gray, returns BGR layout (same as expanding via to_array(BGR)).
+        """
+        if self.channel_order == ChannelOrder.GRAY:
+            return self.to_array(ChannelOrder.BGR)
+        return self.value.copy()
+
     def to_PIL(self) -> Image.Image:
         """
         Get the PIL image.
@@ -30,9 +48,9 @@ class ArrayConvertMixin:
         if self.channel_order == ChannelOrder.BGR:
             return Image.fromarray(self.value[..., [2, 1, 0]], mode='RGB')
         elif self.channel_order == ChannelOrder.GRAY:
-            return Image.fromarray(self.value, mode='L')
+            return Image.fromarray(self.to_gray(), mode='L')
         elif self.channel_order == ChannelOrder.HSV:
-            rgb = cv2.cvtColor(self.value, cv2.COLOR_HSV2RGB)
+            rgb = ChannelOrder.RGB.cv2_array_converter(ChannelOrder.HSV)(self.value)
             return Image.fromarray(rgb, mode='RGB')
         else:
             return Image.fromarray(self.value, mode='RGB')
@@ -56,49 +74,8 @@ class ArrayConvertMixin:
         if ch_order == self.channel_order:
             return self.value.copy()
 
-        if ch_order == ChannelOrder.GRAY:
-            match self.channel_order:
-                case ChannelOrder.BGR:
-                    return cv2.cvtColor(self.value, cv2.COLOR_BGR2GRAY)
-                case ChannelOrder.RGB:
-                    return cv2.cvtColor(self.value, cv2.COLOR_RGB2GRAY)
-                case ChannelOrder.HSV:
-                    return cv2.cvtColor(
-                        cv2.cvtColor(self.value, cv2.COLOR_HSV2BGR),
-                        cv2.COLOR_BGR2GRAY,
-                    )
-                case ChannelOrder.GRAY:
-                    return self.value.copy()
-
-        if self.channel_order == ChannelOrder.GRAY:
-            match ch_order:
-                case ChannelOrder.BGR:
-                    return cv2.cvtColor(self.value, cv2.COLOR_GRAY2BGR)
-                case ChannelOrder.RGB:
-                    return cv2.cvtColor(self.value, cv2.COLOR_GRAY2RGB)
-                case ChannelOrder.HSV:
-                    return cv2.cvtColor(
-                        cv2.cvtColor(self.value, cv2.COLOR_GRAY2BGR),
-                        cv2.COLOR_BGR2HSV,
-                    )
-
-        if ch_order in (ChannelOrder.BGR, ChannelOrder.RGB) and self.channel_order in (
-            ChannelOrder.BGR,
-            ChannelOrder.RGB,
-        ):
-            return self.value[..., ::-1].copy()
-
-        match (self.channel_order, ch_order):
-            case (ChannelOrder.RGB, ChannelOrder.HSV):
-                return cv2.cvtColor(self.value, cv2.COLOR_RGB2HSV)
-            case (ChannelOrder.HSV, ChannelOrder.RGB):
-                return cv2.cvtColor(self.value, cv2.COLOR_HSV2RGB)
-            case (ChannelOrder.BGR, ChannelOrder.HSV):
-                return cv2.cvtColor(self.value, cv2.COLOR_BGR2HSV)
-            case (ChannelOrder.HSV, ChannelOrder.BGR):
-                return cv2.cvtColor(self.value, cv2.COLOR_HSV2BGR)
-            case _:
-                raise ValueError(f"Unsupported channel order: {ch_order}")
+        convert = ch_order.cv2_array_converter(self.channel_order)
+        return convert(self.value)
 
     def to_binary(self, threshold: int | float) -> BinaryImage:
         """
@@ -107,7 +84,7 @@ class ArrayConvertMixin:
         Values greater than or equal to the threshold become 1, otherwise 0.
         If the input has 3 channels, it will be converted to gray first.
         """
-        gray = self.to_array(ChannelOrder.GRAY)  # (H, W)
+        gray = self.to_gray()
         binary01 = (gray >= threshold).astype(np.uint8)  # 0/1
         return BinaryImage(value=binary01)
 
@@ -128,5 +105,5 @@ class ArrayConvertMixin:
         np.ndarray: The channel swapped image.
         """
         if self.channel_order == output_order:
-            return self.value
+            return self.value.copy()
         return self.to_array(output_order)

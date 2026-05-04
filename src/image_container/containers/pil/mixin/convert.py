@@ -18,6 +18,41 @@ class PILConvertMixin:
     value: Image.Image
     channel_order: ChannelOrder
 
+    def to_gray(self) -> Image.Image:
+        """
+        Pillow image in mode L (grayscale / luminance).
+
+        Same visual gray as to_array(ChannelOrder.GRAY) after ndarray conversion.
+        """
+        return self.value.convert(ChannelOrder.GRAY.pil_mode)
+
+    def to_3ch(self) -> Image.Image:
+        """
+        Pillow image in the 3-channel mode for this container's
+        channel_order (RGB triplet storage or HSV).
+
+        A gray container is promoted to RGB (triplets replicate luminance).
+        """
+        match self.channel_order:
+            case ChannelOrder.GRAY | ChannelOrder.RGB | ChannelOrder.BGR:
+                return self.value.convert(ChannelOrder.RGB.pil_mode)
+            case ChannelOrder.HSV:
+                return self.value.convert(ChannelOrder.HSV.pil_mode)
+
+    def to_rgb_image(self) -> Image.Image:
+        """
+        Pillow RGB image (triplet storage).
+
+        Use when the operation needs RGB pixels regardless of whether the
+        container's semantic order is RGB or BGR (both use RGB storage).
+        Converts from the current mode as needed (including HSV to RGB).
+        """
+        return self.value.convert(ChannelOrder.RGB.pil_mode)
+
+    def to_hsv_image(self) -> Image.Image:
+        """Pillow HSV image."""
+        return self.value.convert(ChannelOrder.HSV.pil_mode)
+
     def to_PIL(self) -> Image.Image:
         """
         Get the PIL image.
@@ -46,13 +81,13 @@ class PILConvertMixin:
         """
         match ch_order:
             case ChannelOrder.RGB:
-                return np.array(self.value.convert(ChannelOrder.RGB.pil_mode))
+                return np.asarray(self.to_rgb_image())
             case ChannelOrder.BGR:
-                return np.array(self.value.convert(ChannelOrder.RGB.pil_mode))[..., ::-1]
+                return np.asarray(self.to_rgb_image())[..., ::-1]
             case ChannelOrder.GRAY:
-                return np.array(self.value.convert(ChannelOrder.GRAY.pil_mode))
+                return np.asarray(self.to_gray())
             case ChannelOrder.HSV:
-                return np.array(self.value.convert(ChannelOrder.HSV.pil_mode))
+                return np.asarray(self.to_hsv_image())
 
     def to_binary(self, threshold: int | float) -> BinaryImage:
         """
@@ -61,7 +96,7 @@ class PILConvertMixin:
         Values greater than or equal to the threshold become 1, otherwise 0.
         If the input has 3 channels, it will be converted to gray first.
         """
-        gray = self.to_array(ChannelOrder.GRAY)  # (H, W)
+        gray = np.asarray(self.to_gray())
         binary01 = (gray >= threshold).astype(np.uint8)  # 0/1
         return BinaryImage(value=binary01)
 
@@ -78,7 +113,7 @@ class PILConvertMixin:
             The output channel order to get the image.
         """
         if self.channel_order == output_order:
-            return self.value
+            return self.value.copy()
 
         arr = self.to_array(output_order)
         match output_order:

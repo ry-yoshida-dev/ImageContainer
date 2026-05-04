@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from typing import Protocol
-
 import numpy as np
+from typing import Protocol
 
 from ...ch_order import ChannelOrder
 

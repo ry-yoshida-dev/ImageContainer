@@ -127,6 +127,6 @@ class BinaryImage:
         -------
         tuple[int, int]: The size(width, height) of the binary image.
         """
-        return self.shape[:2]
+        return (self.width, self.height)
 
     
