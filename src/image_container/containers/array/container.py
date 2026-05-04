@@ -8,9 +8,7 @@ import numpy as np
 from ...ch_order import ChannelOrder
 from ...container import ImageContainer
 from ...format import ImageFormat
-from .mixin.geometry import ArrayGeometryMixin
-from .mixin.process import ArrayProcessMixin
-from .mixin.stats import ArrayStatsMixin
+from .mixin import ArrayGeometryMixin, ArrayProcessMixin, ArrayStatsMixin
 from .protocol import SupportsArrayProcess
 
 

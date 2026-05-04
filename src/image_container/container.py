@@ -1,16 +1,15 @@
 from __future__ import annotations
 import numpy as np
-import numpy.typing as npt
 import torch
 from PIL import Image
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, TypeVar, Generic, Self
+from typing import TypeVar, Generic, Self
 
 from .ch_order import ChannelOrder
 from .binary_image import BinaryImage
-from .format import ImageFormats, ImageFormat
+from .format import ImageFormats
 
 T = TypeVar("T", np.ndarray, Image.Image, torch.Tensor)
 
@@ -159,33 +158,6 @@ class ImageContainer(ABC, Generic[T]):
         Values greater than or equal to the threshold become 1, otherwise 0.
         If the input has 3 channels, it will be converted to gray first.
         """
-
-    def _convert_array_to_format(
-        self,
-        array: npt.NDArray[Any],
-        output_format: ImageFormat
-        ) -> ImageFormats:
-        """
-        Convert the array to the output format.
-
-        Parameters:
-        ----------
-        array: np.ndarray
-            The array to convert.
-        output_format: ImageType
-            The output format to convert to.
-
-        Returns:
-        ----------
-        ImageFormats: The converted image.
-        """
-        match output_format:
-            case ImageFormat.ARRAY:
-                return array
-            case ImageFormat.PIL:
-                return Image.fromarray(array)
-            case ImageFormat.TORCH_TENSOR:
-                return torch.from_numpy(array)  # pyright: ignore[reportUnknownMemberType]
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(shape={self.shape}, width={self.width}, height={self.height})"
