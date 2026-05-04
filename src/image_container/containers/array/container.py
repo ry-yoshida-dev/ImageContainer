@@ -70,7 +70,6 @@ class ArrayImageContainer(
         if self.channel_order == ChannelOrder.GRAY:
             if self.value.ndim != 2:
                 raise ValueError(f"Image must have 2 dimensions. Got {self.value.ndim}")
-        self.value.setflags(write=False)
 
     def save(self, save_path: str) -> None:
         """

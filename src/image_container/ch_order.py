@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import cv2
+import numpy as np
+
 from collections.abc import Callable
 from enum import Enum
 from functools import reduce
-
-import cv2
-import numpy as np
 
 
 class ChannelOrder(Enum):

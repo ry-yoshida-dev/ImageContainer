@@ -1,8 +1,9 @@
-from typing import Union
+
 import numpy as np
-from PIL import Image
 import torch
 
+from PIL import Image
+from typing import Union
 from enum import Enum
 
 
