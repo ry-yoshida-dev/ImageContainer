@@ -2,14 +2,14 @@
 
 ## Overview
 
-ImageContainer (`image_container`) is a Python package that provides a unified interface for image data.
+ImageContainer (image_container) is a Python package that provides a unified interface for image data.
 It supports NumPy arrays and PIL images with explicit channel order handling (RGB, BGR, GRAY).
 
 For module details, see [src/image_container/README.md](src/image_container/README.md).
 
 ## Installation
 
-From the package root (the directory containing `pyproject.toml`):
+From the package root (the directory containing pyproject.toml):
 
 ```bash
 pip install .
