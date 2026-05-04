@@ -1,7 +1,6 @@
 from __future__ import annotations
 import numpy as np
 import numpy.typing as npt
-import cv2
 import torch
 from PIL import Image
 
@@ -55,7 +54,7 @@ class ImageContainer(ABC, Generic[T]):
 
     @property
     @abstractmethod
-    def w(self) -> int:
+    def width(self) -> int:
         """
         Get the width of the image.
 
@@ -66,7 +65,7 @@ class ImageContainer(ABC, Generic[T]):
 
     @property
     @abstractmethod
-    def h(self) -> int:
+    def height(self) -> int:
         """
         Get the height of the image.
 
@@ -117,16 +116,6 @@ class ImageContainer(ABC, Generic[T]):
         """
 
     @abstractmethod
-    def _to_array(self) -> np.ndarray:
-        """
-        Convert the image to a numpy array.
-
-        Returns
-        -------
-        np.ndarray: The image as a numpy array.
-        """
-
-    @abstractmethod
     def to_ch_swapped_image(
         self,
         output_order: ChannelOrder
@@ -167,37 +156,9 @@ class ImageContainer(ABC, Generic[T]):
         """
         Convert the image into a binary image using a threshold.
 
-        Values >= `threshold` become 1, otherwise 0.
+        Values greater than or equal to the threshold become 1, otherwise 0.
         If the input has 3 channels, it will be converted to gray first.
         """
-
-    def _create_swapped_array(
-        self,
-        output_channel_order: ChannelOrder
-        ) -> np.ndarray:
-        """
-        Create the array with the output channel order.
-
-        Parameters:
-        ----------
-        output_channel_order: ChannelOrder
-            The output channel order to create the array.
-
-        Returns:
-        ----------
-        np.ndarray: The array with the output channel order.
-        """
-        array = self._to_array()
-
-        if output_channel_order == self.channel_order:
-            return array
-        elif output_channel_order == ChannelOrder.GRAY:
-            return cv2.cvtColor(array, cv2.COLOR_RGB2GRAY)
-        else:
-            if output_channel_order in [ChannelOrder.RGB, ChannelOrder.BGR] and self.channel_order in [ChannelOrder.RGB, ChannelOrder.BGR]:
-                return array[:, :, [2, 1, 0]]
-            else:
-                raise ValueError(f"Unsupported channel order: {self.channel_order} → {output_channel_order}")
 
     def _convert_array_to_format(
         self,
@@ -227,7 +188,7 @@ class ImageContainer(ABC, Generic[T]):
                 return torch.from_numpy(array)  # pyright: ignore[reportUnknownMemberType]
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}(shape={self.shape}, w={self.w}, h={self.h})"
+        return f"{self.__class__.__name__}(shape={self.shape}, width={self.width}, height={self.height})"
 
     @classmethod
     @abstractmethod

@@ -97,7 +97,7 @@ class BinaryImage:
         return self.value.shape
     
     @property
-    def w(self) -> int:
+    def width(self) -> int:
         """
         Get the width of the binary image.
 
@@ -108,7 +108,7 @@ class BinaryImage:
         return self.shape[1]
     
     @property
-    def h(self) -> int:
+    def height(self) -> int:
         """
         Get the height of the binary image.
 
