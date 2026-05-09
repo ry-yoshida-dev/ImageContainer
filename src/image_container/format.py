@@ -3,11 +3,9 @@ import numpy as np
 import torch
 
 from PIL import Image
-from typing import Union
 from enum import Enum
 
-
-ImageFormats = Union[np.ndarray, Image.Image, torch.Tensor] # tf.tensorflow
+ImageFormats = np.ndarray | Image.Image | torch.Tensor
 
 class ImageFormat(Enum):
     """

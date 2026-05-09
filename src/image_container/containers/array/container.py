@@ -10,7 +10,7 @@ from ...container import ImageContainer
 from ...format import ImageFormat
 from .mixin import ArrayGeometryMixin, ArrayProcessMixin, ArrayStatsMixin
 from .mixin.hash import ArrayHashMixin
-from .protocol import SupportsArrayHash
+from .protocols import SupportsArrayHash
 
 
 class ArrayImageContainer(

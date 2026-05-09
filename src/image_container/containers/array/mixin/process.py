@@ -110,7 +110,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
         Sobel derivatives on a grayscale view of the image.
 
         Computes horizontal and vertical Sobel with cv2.CV_64F and stacks them along
-        the last axis as (G_x, G_y). Magnitude is ``cv2.magnitude(gx, gy)`` if needed.
+        the last axis as (G_x, G_y). Magnitude is cv2.magnitude(gx, gy) if needed.
         When is_uint8_output is True (default), convertScaleAbs is applied per
         component for typical visualization.
 
