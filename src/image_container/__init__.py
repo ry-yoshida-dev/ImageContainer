@@ -12,12 +12,12 @@ from .containers import (
     )
 
 __all__ = [
-    "ImageContainer", 
+    "ImageContainer",
     "BinaryImage",
     "Connectivity",
     "ConnectedComponents",
-    "ChannelOrder", 
-    "ImageFormat", 
-    "ArrayImageContainer", 
-    "PILImageContainer"
-    ]
+    "ChannelOrder",
+    "ImageFormat",
+    "ArrayImageContainer",
+    "PILImageContainer",
+]

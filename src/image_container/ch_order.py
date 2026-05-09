@@ -18,6 +18,8 @@ class ChannelOrder(Enum):
     BGR: BGR channel order.
     GRAY: Gray channel order.
     HSV: HSV color space.
+    LAB: CIELAB in OpenCV layout (L, a, b) as uint8; typically produced via
+        BGR2LAB / RGB2LAB.
 
     Notes
     -----
@@ -29,6 +31,7 @@ class ChannelOrder(Enum):
     BGR = "bgr"
     GRAY = "gray"
     HSV = "hsv"
+    LAB = "lab"
 
     @property
     def pil_mode(self) -> str:
@@ -40,11 +43,18 @@ class ChannelOrder(Enum):
                 return "L"
             case ChannelOrder.HSV:
                 return "HSV"
+            case ChannelOrder.LAB:
+                return "LAB"
 
     @property
     def is_3ch(self) -> bool:
         """True if the channel order is 3-channel."""
-        return self in (ChannelOrder.RGB, ChannelOrder.BGR, ChannelOrder.HSV)
+        return self in (
+            ChannelOrder.RGB,
+            ChannelOrder.BGR,
+            ChannelOrder.HSV,
+            ChannelOrder.LAB,
+        )
 
     @property
     def is_1ch(self) -> bool:
@@ -84,6 +94,22 @@ class ChannelOrder(Enum):
                 return (cv2.COLOR_BGR2HSV,)
             case (ChannelOrder.HSV, ChannelOrder.BGR):
                 return (cv2.COLOR_HSV2BGR,)
+            case (ChannelOrder.BGR, ChannelOrder.LAB):
+                return (cv2.COLOR_BGR2LAB,)
+            case (ChannelOrder.RGB, ChannelOrder.LAB):
+                return (cv2.COLOR_RGB2LAB,)
+            case (ChannelOrder.GRAY, ChannelOrder.LAB):
+                return (cv2.COLOR_GRAY2BGR, cv2.COLOR_BGR2LAB)
+            case (ChannelOrder.HSV, ChannelOrder.LAB):
+                return (cv2.COLOR_HSV2BGR, cv2.COLOR_BGR2LAB)
+            case (ChannelOrder.LAB, ChannelOrder.BGR):
+                return (cv2.COLOR_LAB2BGR,)
+            case (ChannelOrder.LAB, ChannelOrder.RGB):
+                return (cv2.COLOR_LAB2RGB,)
+            case (ChannelOrder.LAB, ChannelOrder.GRAY):
+                return (cv2.COLOR_LAB2BGR, cv2.COLOR_BGR2GRAY)
+            case (ChannelOrder.LAB, ChannelOrder.HSV):
+                return (cv2.COLOR_LAB2BGR, cv2.COLOR_BGR2HSV)
             case _:
                 raise ValueError(
                     f"No OpenCV conversion path from {convert_from!r} to {self!r}"

@@ -29,3 +29,33 @@ class SupportsArrayProcess(SupportsArrayGeometry, Protocol):
 
     def to_array(self, ch_order: ChannelOrder = ChannelOrder.BGR) -> np.ndarray:
         ...
+
+
+class SupportsArrayHash(SupportsArrayProcess, Protocol):
+    """
+    Structural typing for hosts of ArrayHashMixin (conversion + img_hash accessors).
+    """
+
+    @property
+    def phash(self) -> np.ndarray:
+        ...
+
+    @property
+    def average_hash(self) -> np.ndarray:
+        ...
+
+    @property
+    def block_mean_hash(self) -> np.ndarray:
+        ...
+
+    @property
+    def color_moment_hash(self) -> np.ndarray:
+        ...
+
+    @property
+    def marr_hildreth_hash(self) -> np.ndarray:
+        ...
+
+    @property
+    def radial_variance_hash(self) -> np.ndarray:
+        ...

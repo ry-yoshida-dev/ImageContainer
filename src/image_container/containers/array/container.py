@@ -9,15 +9,17 @@ from ...ch_order import ChannelOrder
 from ...container import ImageContainer
 from ...format import ImageFormat
 from .mixin import ArrayGeometryMixin, ArrayProcessMixin, ArrayStatsMixin
-from .protocol import SupportsArrayProcess
+from .mixin.hash import ArrayHashMixin
+from .protocol import SupportsArrayHash
 
 
 class ArrayImageContainer(
     ArrayGeometryMixin,
+    ArrayHashMixin,
     ArrayStatsMixin,
     ArrayProcessMixin,
     ImageContainer[np.ndarray],
-    SupportsArrayProcess,
+    SupportsArrayHash,
 ):
     """
     Container class for numpy arrays.
@@ -60,12 +62,12 @@ class ArrayImageContainer(
             If the image is not a 2D numpy array.
             If the image has the wrong number of channels.
         """
-        if self.channel_order in [ChannelOrder.RGB, ChannelOrder.BGR, ChannelOrder.HSV]:
+        if self.channel_order.is_3ch:
             if self.value.ndim != 3:
                 raise ValueError(f"Image must have 3 dimensions. Got {self.value.ndim}")
             if self.value.shape[2] != 3:
                 raise ValueError(f"Image must have 3 channels. Got {self.value.shape[2]}")
-        if self.channel_order == ChannelOrder.GRAY:
+        if self.channel_order.is_1ch:
             if self.value.ndim != 2:
                 raise ValueError(f"Image must have 2 dimensions. Got {self.value.ndim}")
 
@@ -81,7 +83,7 @@ class ArrayImageContainer(
         dir_name = os.path.dirname(save_path)
         if dir_name:
             os.makedirs(dir_name, exist_ok=True)
-        if self.channel_order == ChannelOrder.GRAY:
+        if self.channel_order.is_1ch:
             to_write = self.value
         else:
             to_write = self.to_array(ChannelOrder.BGR)

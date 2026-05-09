@@ -29,7 +29,7 @@ class PILConvertMixin:
     def to_3ch(self) -> Image.Image:
         """
         Pillow image in the 3-channel mode for this container's
-        channel_order (RGB triplet storage or HSV).
+        channel_order (RGB triplet storage, HSV, or LAB).
 
         A gray container is promoted to RGB (triplets replicate luminance).
         """
@@ -38,6 +38,8 @@ class PILConvertMixin:
                 return self.value.convert(ChannelOrder.RGB.pil_mode)
             case ChannelOrder.HSV:
                 return self.value.convert(ChannelOrder.HSV.pil_mode)
+            case ChannelOrder.LAB:
+                return self.value.convert(ChannelOrder.LAB.pil_mode)
 
     def to_rgb_image(self) -> Image.Image:
         """
@@ -45,13 +47,17 @@ class PILConvertMixin:
 
         Use when the operation needs RGB pixels regardless of whether the
         container's semantic order is RGB or BGR (both use RGB storage).
-        Converts from the current mode as needed (including HSV to RGB).
+        Converts from the current mode as needed (including HSV / LAB to RGB).
         """
         return self.value.convert(ChannelOrder.RGB.pil_mode)
 
     def to_hsv_image(self) -> Image.Image:
         """Pillow HSV image."""
         return self.value.convert(ChannelOrder.HSV.pil_mode)
+
+    def to_lab_image(self) -> Image.Image:
+        """Pillow LAB image."""
+        return self.value.convert(ChannelOrder.LAB.pil_mode)
 
     def to_PIL(self) -> Image.Image:
         """
@@ -88,6 +94,8 @@ class PILConvertMixin:
                 return np.asarray(self.to_gray())
             case ChannelOrder.HSV:
                 return np.asarray(self.to_hsv_image())
+            case ChannelOrder.LAB:
+                return np.asarray(self.to_lab_image())
 
     def to_binary(self, threshold: int | float) -> BinaryImage:
         """
@@ -128,3 +136,5 @@ class PILConvertMixin:
                 return Image.fromarray(arr, mode=ChannelOrder.GRAY.pil_mode)
             case ChannelOrder.HSV:
                 return Image.fromarray(arr, mode=ChannelOrder.HSV.pil_mode)
+            case ChannelOrder.LAB:
+                return Image.fromarray(arr, mode=ChannelOrder.LAB.pil_mode)

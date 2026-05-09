@@ -83,5 +83,7 @@ class PILGeometryMixin:
                 return 4
             case 'HSV':
                 return 3
+            case 'LAB':
+                return 3
             case _:
                 raise ValueError(f"Unsupported PIL mode: {self.value.mode}")

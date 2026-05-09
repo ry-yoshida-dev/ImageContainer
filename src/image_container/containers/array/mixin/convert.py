@@ -30,7 +30,7 @@ class ArrayConvertMixin:
         """
         Three-channel array (H, W, 3).
 
-        If the container is already RGB/BGR/HSV, returns a copy of value.
+        If the container is already RGB/BGR/HSV/LAB, returns a copy of value.
         If gray, returns BGR layout (same as expanding via to_array(BGR)).
         """
         if self.channel_order == ChannelOrder.GRAY:
@@ -45,15 +45,21 @@ class ArrayConvertMixin:
         -------
         Image.Image: The PIL image.
         """
-        if self.channel_order == ChannelOrder.BGR:
-            return Image.fromarray(self.value[..., [2, 1, 0]], mode='RGB')
-        elif self.channel_order == ChannelOrder.GRAY:
-            return Image.fromarray(self.to_gray(), mode='L')
-        elif self.channel_order == ChannelOrder.HSV:
-            rgb = ChannelOrder.RGB.cv2_array_converter(ChannelOrder.HSV)(self.value)
-            return Image.fromarray(rgb, mode='RGB')
-        else:
-            return Image.fromarray(self.value, mode='RGB')
+        match self.channel_order:
+            case ChannelOrder.BGR:
+                return Image.fromarray(self.value[..., [2, 1, 0]], mode='RGB')
+            case ChannelOrder.GRAY:
+                return Image.fromarray(
+                    self.to_gray(),
+                    mode=ChannelOrder.GRAY.pil_mode,
+                )
+            case ChannelOrder.HSV:
+                bgr: np.ndarray = self.to_array(ChannelOrder.BGR)
+                return Image.fromarray(bgr[..., [2, 1, 0]], mode='RGB')
+            case ChannelOrder.LAB:
+                return Image.fromarray(self.value, mode=ChannelOrder.LAB.pil_mode)
+            case ChannelOrder.RGB:
+                return Image.fromarray(self.value, mode='RGB')
 
     def to_array(
         self,
