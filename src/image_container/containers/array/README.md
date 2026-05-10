@@ -1,6 +1,6 @@
 # Overview
 
-NumPy-backed image container implementation: ArrayImageContainer composes mixins for conversion, geometry, hashing, statistics, and OpenCV-oriented processing. Structural protocols live under [protocols/](protocols/).
+NumPy-backed image container implementation: ArrayImageContainer composes mixins for conversion, geometry, hashing, statistics, OpenCV-oriented processing, and grayscale derivative filters (Laplacian/Sobel via ArrayFilterMixin). Structural protocols live under [protocols/](protocols/).
 
 # Components
 
