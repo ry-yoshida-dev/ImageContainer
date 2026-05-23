@@ -99,3 +99,40 @@ class ArrayProcessMixin(ArrayConvertMixin):
         return ArrayImageContainer(value=merged, channel_order=ChannelOrder.LAB).to_array(
             self.channel_order
         )
+
+    def dct(self) -> np.ndarray:
+        """
+        Discrete Cosine Transform (DCT).
+
+        Returns
+        -------
+        np.ndarray
+            DCT coefficients with shape (H, W).
+        """
+        gray = self.to_array(ChannelOrder.GRAY)
+        return cv2.dct(gray.astype(np.float32))
+
+    @staticmethod
+    def idct(
+        dct_coeffs: np.ndarray, 
+        is_uint8_cast_enabled: bool = True
+        ) -> np.ndarray:
+        """
+        Inverse Discrete Cosine Transform (IDCT).
+
+        Parameters
+        ----------
+        dct_coeffs : np.ndarray
+            DCT coefficients with shape (H, W) and float32 dtype.
+        is_uint8_cast_enabled : bool, default True
+            If True, clips the result to [0, 255] and converts to uint8.
+
+        Returns
+        -------
+        np.ndarray
+            Restored grayscale image array with shape (H, W).
+        """
+        restored = cv2.idct(dct_coeffs)
+        if is_uint8_cast_enabled:
+            return np.clip(restored, 0, 255).astype(np.uint8)
+        return restored
