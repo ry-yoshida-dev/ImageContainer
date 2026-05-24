@@ -4,6 +4,7 @@ from .binary_image import (
     Connectivity,
     ConnectedComponents
     )
+from .dct_image import DctImage
 from .ch_order import ChannelOrder
 from .format import ImageFormat
 from .iterator import ImageIterator
@@ -17,6 +18,7 @@ __all__ = [
     "BinaryImage",
     "Connectivity",
     "ConnectedComponents",
+    "DctImage",
     "ChannelOrder",
     "ImageFormat",
     "ImageIterator",
