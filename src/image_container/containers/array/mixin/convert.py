@@ -5,6 +5,7 @@ from PIL import Image
 
 from ....binary_image import BinaryImage
 from ....ch_order import ChannelOrder
+from ....dct_image import DctImage
 
 
 class ArrayConvertMixin:
@@ -13,6 +14,7 @@ class ArrayConvertMixin:
     - PIL
     - NumPy with another channel order
     - BinaryImage
+    - DctImage
     """
 
     value: np.ndarray
@@ -93,6 +95,17 @@ class ArrayConvertMixin:
         gray = self.to_gray()
         binary01 = (gray >= threshold).astype(np.uint8)  # 0/1
         return BinaryImage(value=binary01)
+
+    def dct(self) -> DctImage:
+        """
+        Discrete Cosine Transform (DCT).
+
+        Returns
+        -------
+        DctImage
+            DCT coefficients with shape (H, W) and float32 dtype.
+        """
+        return DctImage.from_array(self.value, self.channel_order)
 
     def to_ch_swapped_image(
         self,

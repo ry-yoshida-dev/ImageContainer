@@ -6,7 +6,6 @@ import numpy as np
 from collections.abc import Callable
 
 from ....ch_order import ChannelOrder
-from ....dct_image import DctImage
 from .convert import ArrayConvertMixin
 
 
@@ -100,14 +99,3 @@ class ArrayProcessMixin(ArrayConvertMixin):
         return ArrayImageContainer(value=merged, channel_order=ChannelOrder.LAB).to_array(
             self.channel_order
         )
-
-    def dct(self) -> DctImage:
-        """
-        Discrete Cosine Transform (DCT).
-
-        Returns
-        -------
-        DctImage
-            DCT coefficients with shape (H, W) and float32 dtype.
-        """
-        return DctImage.from_array(self.value, self.channel_order)
