@@ -25,8 +25,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/ry-yoshida-private/ImageContainer"
-"Bug Tracker" = "https://github.com/ry-yoshida-private/ImageContainer/issues"
+Homepage = "https://github.com/ry-yoshida-dev/ImageContainer"
+"Bug Tracker" = "https://github.com/ry-yoshida-dev/ImageContainer/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
