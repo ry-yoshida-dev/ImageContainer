@@ -4,6 +4,7 @@ import numpy as np
 from typing import Protocol
 
 from ....ch_order import ChannelOrder
+from ....types import ImageArray
 
 
 class SupportsArrayGeometry(Protocol):
@@ -12,11 +13,11 @@ class SupportsArrayGeometry(Protocol):
 
     Attributes
     ----------
-    value : np.ndarray
+    value : ImageArray
         The numpy array payload.
     channel_order : ChannelOrder
         The channel order of the image.
     """
 
-    value: np.ndarray
+    value: ImageArray
     channel_order: ChannelOrder

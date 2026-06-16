@@ -1,4 +1,5 @@
 from .container import ImageContainer
+from .types import BinaryArray, ImageArray
 from .binary_image import (
     BinaryImage,
     Connectivity,
@@ -14,6 +15,8 @@ from .containers import (
     )
 
 __all__ = [
+    "BinaryArray",
+    "ImageArray",
     "ImageContainer",
     "BinaryImage",
     "Connectivity",

@@ -2,9 +2,13 @@ from __future__ import annotations
 import cv2
 import numpy as np
 from dataclasses import dataclass
+from typing import Any, cast
+
+from numpy.typing import NDArray
 
 from .connectivity import Connectivity
 from .connected_components import ConnectedComponents
+from ..types import BinaryArray
 
 @dataclass
 class BinaryImage:
@@ -13,10 +17,10 @@ class BinaryImage:
 
     Parameters
     ----------
-    value: np.ndarray
+    value: BinaryArray
         The binary image represented as a 2D array of shape (height, width).
     """
-    value: np.ndarray
+    value: BinaryArray
 
     def __post_init__(self):
         """
@@ -55,13 +59,15 @@ class BinaryImage:
         """
         value = self.value.astype(np.uint8)
 
-        n_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(value, connectivity=connectivity.value)
+        n_labels, labels, stats, centroids = cv2.connectedComponentsWithStats(
+            value, connectivity=connectivity.value
+        )
         return ConnectedComponents(
-            n_labels=n_labels, 
-            labels=labels, 
-            stats=stats, 
-            centroids=centroids
-            )
+            n_labels=n_labels,
+            labels=cast(NDArray[np.integer[Any]], labels),
+            stats=cast(NDArray[np.integer[Any]], stats),
+            centroids=cast(NDArray[np.floating[Any]], centroids),
+        )
 
     @property
     def sum(self) -> int:
@@ -72,7 +78,7 @@ class BinaryImage:
         -------
         int: The sum of the True(1) values in the binary image.
         """
-        return np.sum(self.value)
+        return int(np.sum(self.value))
     
     @property
     def mean(self) -> float:

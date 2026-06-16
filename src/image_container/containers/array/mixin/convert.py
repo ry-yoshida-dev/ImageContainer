@@ -6,6 +6,7 @@ from PIL import Image
 from ....binary_image import BinaryImage
 from ....ch_order import ChannelOrder
 from ....dct_image import DctImage
+from ....types import ImageArray
 
 
 class ArrayConvertMixin:
@@ -17,10 +18,10 @@ class ArrayConvertMixin:
     - DctImage
     """
 
-    value: np.ndarray
+    value: ImageArray
     channel_order: ChannelOrder
 
-    def to_gray(self) -> np.ndarray:
+    def to_gray(self) -> ImageArray:
         """
         Grayscale plane (H, W).
 
@@ -28,7 +29,7 @@ class ArrayConvertMixin:
         """
         return self.to_array(ChannelOrder.GRAY)
 
-    def to_3ch(self) -> np.ndarray:
+    def to_3ch(self) -> ImageArray:
         """
         Three-channel array (H, W, 3).
 
@@ -56,7 +57,7 @@ class ArrayConvertMixin:
                     mode=ChannelOrder.GRAY.pil_mode,
                 )
             case ChannelOrder.HSV:
-                bgr: np.ndarray = self.to_array(ChannelOrder.BGR)
+                bgr: ImageArray = self.to_array(ChannelOrder.BGR)
                 return Image.fromarray(bgr[..., [2, 1, 0]], mode='RGB')
             case ChannelOrder.LAB:
                 return Image.fromarray(self.value, mode=ChannelOrder.LAB.pil_mode)
@@ -66,13 +67,13 @@ class ArrayConvertMixin:
     def to_array(
         self,
         ch_order: ChannelOrder = ChannelOrder.BGR
-        ) -> np.ndarray:
+        ) -> ImageArray:
         """
         Get the array image.
 
         Returns
         -------
-        np.ndarray: The array image.
+        ImageArray: The array image.
 
         Raises
         ------
@@ -93,8 +94,7 @@ class ArrayConvertMixin:
         If the input has 3 channels, it will be converted to gray first.
         """
         gray = self.to_gray()
-        binary01 = (gray >= threshold).astype(np.uint8)  # 0/1
-        return BinaryImage(value=binary01)
+        return BinaryImage(value=(gray >= threshold))
 
     def dct(self) -> DctImage:
         """
@@ -110,7 +110,7 @@ class ArrayConvertMixin:
     def to_ch_swapped_image(
         self,
         output_order: ChannelOrder = ChannelOrder.BGR
-        ) -> np.ndarray:
+        ) -> ImageArray:
         """
         Get the channel swapped image.
 
@@ -121,7 +121,7 @@ class ArrayConvertMixin:
 
         Returns
         -------
-        np.ndarray: The channel swapped image.
+        ImageArray: The channel swapped image.
         """
         if self.channel_order == output_order:
             return self.value.copy()

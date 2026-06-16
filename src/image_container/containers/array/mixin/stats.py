@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 
 from ....ch_order import ChannelOrder
+from ....types import ImageArray
 from .convert import ArrayConvertMixin
 
 
@@ -34,39 +35,39 @@ class ArrayStatsMixin(ArrayConvertMixin):
         return float(np.min(gray))
 
     @property
-    def mean_bgr(self) -> np.ndarray:
+    def mean_bgr(self) -> ImageArray:
         """
         Per-channel means in BGR order after conversion to BGR.
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Shape (3,), dtype float64; indices 0, 1, 2 are B, G, R.
         """
         bgr = self.to_array(ChannelOrder.BGR)
         return np.mean(bgr, axis=(0, 1))
 
     @property
-    def max_bgr(self) -> np.ndarray:
+    def max_bgr(self) -> ImageArray:
         """
         Per-channel maxima in BGR order after conversion to BGR.
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Shape (3,); indices 0, 1, 2 are B, G, R. Dtype follows the BGR array.
         """
         bgr = self.to_array(ChannelOrder.BGR)
         return np.max(bgr, axis=(0, 1))
 
     @property
-    def min_bgr(self) -> np.ndarray:
+    def min_bgr(self) -> ImageArray:
         """
         Per-channel minima in BGR order after conversion to BGR.
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Shape (3,); indices 0, 1, 2 are B, G, R. Dtype follows the BGR array.
         """
         bgr = self.to_array(ChannelOrder.BGR)
@@ -76,10 +77,10 @@ class ArrayStatsMixin(ArrayConvertMixin):
         self,
         bins: int = 256,
         hist_range: tuple[float, float] = (0.0, 256.0),
-        mask: np.ndarray | None = None,
+        mask: ImageArray | None = None,
         *,
         histogram_order: ChannelOrder = ChannelOrder.GRAY,
-    ) -> np.ndarray:
+    ) -> ImageArray:
         """
         Histogram using OpenCV cv2.calcHist.
 
@@ -96,7 +97,7 @@ class ArrayStatsMixin(ArrayConvertMixin):
             Number of histogram bins per channel.
         hist_range : tuple[float, float]
             Pixel value range included in the histogram.
-        mask : np.ndarray or None
+        mask : ImageArray or None
             Optional (H, W) mask; non-zero pixels are counted (common case: 0/1
             uint8). None means use the full image.
         histogram_order : ChannelOrder
@@ -104,7 +105,7 @@ class ArrayStatsMixin(ArrayConvertMixin):
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             (bins, 1) for grayscale mode, (bins, 3) for BGR mode; dtype float32.
 
         Raises
@@ -115,10 +116,10 @@ class ArrayStatsMixin(ArrayConvertMixin):
         rng = list(hist_range)
         match histogram_order:
             case ChannelOrder.GRAY:
-                gray: np.ndarray = self.to_array(ChannelOrder.GRAY)
+                gray: ImageArray = self.to_array(ChannelOrder.GRAY)
                 return cv2.calcHist([gray], [0], mask, [bins], rng)
             case ChannelOrder.BGR:
-                bgr: np.ndarray = self.to_array(ChannelOrder.BGR)
+                bgr: ImageArray = self.to_array(ChannelOrder.BGR)
                 h0 = cv2.calcHist([bgr], [0], mask, [bins], rng)
                 h1 = cv2.calcHist([bgr], [1], mask, [bins], rng)
                 h2 = cv2.calcHist([bgr], [2], mask, [bins], rng)

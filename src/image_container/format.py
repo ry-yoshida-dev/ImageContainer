@@ -1,11 +1,12 @@
 
-import numpy as np
 import torch
 
 from PIL import Image
 from enum import Enum
 
-ImageFormats = np.ndarray | Image.Image | torch.Tensor
+from .types import ImageArray
+
+ImageFormats = ImageArray | Image.Image | torch.Tensor
 
 class ImageFormat(Enum):
     """
@@ -13,7 +14,7 @@ class ImageFormat(Enum):
 
     Attributes
     ----------
-    ARRAY: np.ndarray
+    ARRAY: ImageArray
     PIL: Image.Image
     TORCH_TENSOR: torch.Tensor
     """

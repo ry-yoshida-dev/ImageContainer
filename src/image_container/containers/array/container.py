@@ -8,6 +8,7 @@ import numpy as np
 from ...ch_order import ChannelOrder
 from ...container import ImageContainer
 from ...format import ImageFormat
+from ...types import ImageArray
 from .mixin import ArrayFilterMixin, ArrayGeometryMixin, ArrayProcessMixin, ArrayStatsMixin
 from .mixin.hash import ArrayHashMixin
 from .protocols import SupportsArrayHash
@@ -19,7 +20,7 @@ class ArrayImageContainer(
     ArrayStatsMixin,
     ArrayProcessMixin,
     ArrayFilterMixin,
-    ImageContainer[np.ndarray],
+    ImageContainer[ImageArray],
     SupportsArrayHash,
 ):
     """
@@ -27,7 +28,7 @@ class ArrayImageContainer(
 
     Attributes:
     ----------
-    value: np.ndarray
+    value: ImageArray
         The numpy array.
     channel_order: ChannelOrder
         The channel order of the image.
@@ -51,7 +52,7 @@ class ArrayImageContainer(
 
         Parameters:
         ----------
-        image: np.ndarray
+        image: ImageArray
             The image to validate.
         channel_order: ChannelOrder
             The channel order of the image.

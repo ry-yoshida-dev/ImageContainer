@@ -5,6 +5,7 @@ from PIL import Image
 
 from ....binary_image import BinaryImage
 from ....ch_order import ChannelOrder
+from ....types import ImageArray
 
 
 class PILConvertMixin:
@@ -72,13 +73,13 @@ class PILConvertMixin:
     def to_array(
         self,
         ch_order: ChannelOrder = ChannelOrder.BGR
-        ) -> np.ndarray:
+        ) -> ImageArray:
         """
         Get the array image.
 
         Returns
         -------
-        np.ndarray: The array image.
+        ImageArray: The array image.
 
         Raises
         ------
@@ -105,8 +106,7 @@ class PILConvertMixin:
         If the input has 3 channels, it will be converted to gray first.
         """
         gray = np.asarray(self.to_gray())
-        binary01 = (gray >= threshold).astype(np.uint8)  # 0/1
-        return BinaryImage(value=binary01)
+        return BinaryImage(value=(gray >= threshold))
 
     def to_ch_swapped_image(
         self,

@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 
 from ....ch_order import ChannelOrder
+from ....types import ImageArray
 from .convert import ArrayConvertMixin
 
 
@@ -23,7 +24,7 @@ class ArrayFilterMixin(ArrayConvertMixin):
         ksize: int = 3,
         *,
         is_uint8_output: bool = True,
-    ) -> np.ndarray:
+    ) -> ImageArray:
         """
         Laplacian filter on a grayscale view of the image.
 
@@ -39,12 +40,12 @@ class ArrayFilterMixin(ArrayConvertMixin):
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Single-channel array of shape (H, W); uint8 if is_uint8_output is True,
             otherwise float64.
         """
-        gray: np.ndarray = self.to_array(ChannelOrder.GRAY)
-        lap: np.ndarray = cv2.Laplacian(gray, cv2.CV_64F, ksize=ksize)
+        gray: ImageArray = self.to_array(ChannelOrder.GRAY)
+        lap: ImageArray = cv2.Laplacian(gray, cv2.CV_64F, ksize=ksize)
         if is_uint8_output:
             return cv2.convertScaleAbs(lap)
         return lap.astype(np.float64)
@@ -54,7 +55,7 @@ class ArrayFilterMixin(ArrayConvertMixin):
         ksize: int = 3,
         *,
         is_uint8_output: bool = True,
-    ) -> np.ndarray:
+    ) -> ImageArray:
         """
         Sobel derivatives on a grayscale view of the image.
 
@@ -72,13 +73,13 @@ class ArrayFilterMixin(ArrayConvertMixin):
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Array of shape (H, W, 2): channel 0 is ∂I/∂x, channel 1 is ∂I/∂y.
             dtype uint8 if is_uint8_output is True, otherwise float64.
         """
-        gray: np.ndarray = self.to_array(ChannelOrder.GRAY)
-        gx: np.ndarray = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=ksize)
-        gy: np.ndarray = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=ksize)
+        gray: ImageArray = self.to_array(ChannelOrder.GRAY)
+        gx: ImageArray = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=ksize)
+        gy: ImageArray = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=ksize)
         if is_uint8_output:
             return np.stack(
                 [cv2.convertScaleAbs(gx), cv2.convertScaleAbs(gy)],

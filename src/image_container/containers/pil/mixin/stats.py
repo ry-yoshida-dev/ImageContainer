@@ -5,6 +5,7 @@ import numpy as np
 from PIL import Image, ImageStat
 
 from ....ch_order import ChannelOrder
+from ....types import ImageArray
 from .convert import PILConvertMixin
 
 
@@ -38,39 +39,39 @@ class PILStatsMixin(PILConvertMixin):
         return float(self._gray_stat().extrema[0][0])
 
     @property
-    def mean_bgr(self) -> np.ndarray:
+    def mean_bgr(self) -> ImageArray:
         """
         Per-channel means in BGR order (RGB storage interpreted as BGR indices).
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Shape (3,), dtype float64; indices 0, 1, 2 are B, G, R.
         """
         m = self._rgb_stat().mean
         return np.array([m[2], m[1], m[0]], dtype=np.float64)
 
     @property
-    def max_bgr(self) -> np.ndarray:
+    def max_bgr(self) -> ImageArray:
         """
         Per-channel maxima in BGR order (RGB storage interpreted as BGR indices).
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Shape (3,); indices 0, 1, 2 are B, G, R.
         """
         e = self._rgb_stat().extrema
         return np.array([e[2][1], e[1][1], e[0][1]], dtype=np.int64)
 
     @property
-    def min_bgr(self) -> np.ndarray:
+    def min_bgr(self) -> ImageArray:
         """
         Per-channel minima in BGR order (RGB storage interpreted as BGR indices).
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Shape (3,); indices 0, 1, 2 are B, G, R.
         """
         e = self._rgb_stat().extrema
@@ -80,9 +81,9 @@ class PILStatsMixin(PILConvertMixin):
         self,
         bins: int,
         hist_range: tuple[float, float],
-        mask: np.ndarray | None,
+        mask: ImageArray | None,
         histogram_order: ChannelOrder,
-    ) -> np.ndarray:
+    ) -> ImageArray:
         rng = list(hist_range)
         match histogram_order:
             case ChannelOrder.GRAY:
@@ -104,10 +105,10 @@ class PILStatsMixin(PILConvertMixin):
         self,
         bins: int = 256,
         hist_range: tuple[float, float] = (0.0, 256.0),
-        mask: np.ndarray | None = None,
+        mask: ImageArray | None = None,
         *,
         histogram_order: ChannelOrder = ChannelOrder.GRAY,
-    ) -> np.ndarray:
+    ) -> ImageArray:
         """
         Histogram: Pillow for 8-bit, 256 bins, full range, compatible mask; else OpenCV.
 
@@ -121,7 +122,7 @@ class PILStatsMixin(PILConvertMixin):
             Number of histogram bins per channel.
         hist_range : tuple[float, float]
             Pixel value range included in the histogram.
-        mask : np.ndarray or None
+        mask : ImageArray or None
             Optional (H, W) mask; non-zero pixels are counted. For the Pillow path the
             mask is converted to mode L.
         histogram_order : ChannelOrder
@@ -129,7 +130,7 @@ class PILStatsMixin(PILConvertMixin):
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             (bins, 1) for grayscale mode, (bins, 3) for BGR mode; dtype float32.
 
         Raises

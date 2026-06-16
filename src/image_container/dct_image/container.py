@@ -7,6 +7,7 @@ import numpy as np
 from dataclasses import dataclass
 
 from ..ch_order import ChannelOrder
+from ..types import ImageArray
 from ..utils.padding import padding_to_even
 
 @dataclass
@@ -16,14 +17,14 @@ class DctImage:
 
     Parameters
     ----------
-    value : np.ndarray
+    value : ImageArray
         DCT coefficients as a 2D float32 array of shape (height, width).
     source_shape : tuple[int, int] | None, default None
         Original (height, width) before odd-dimension padding in from_array.
         When set, idct crops the restored image back to this shape.
     """
 
-    value: np.ndarray
+    value: ImageArray
     source_shape: tuple[int, int] | None = None
 
     def __post_init__(self) -> None:
@@ -45,7 +46,7 @@ class DctImage:
     @classmethod
     def from_array(
         cls,
-        array: np.ndarray,
+        array: ImageArray,
         channel_order: ChannelOrder,
     ) -> DctImage:
         """
@@ -55,7 +56,7 @@ class DctImage:
 
         Parameters
         ----------
-        array : np.ndarray
+        array : ImageArray
             Input image array in the given channel order.
         channel_order : ChannelOrder
             Channel layout of the input array.
@@ -85,7 +86,7 @@ class DctImage:
             )
         return cls(value=cv2.dct(gray.astype(np.float32)), source_shape=source_shape)
 
-    def idct(self, is_uint8_cast_enabled: bool = True) -> np.ndarray:
+    def idct(self, is_uint8_cast_enabled: bool = True) -> ImageArray:
         """
         Inverse Discrete Cosine Transform (IDCT).
 
@@ -96,7 +97,7 @@ class DctImage:
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Restored grayscale image array with shape (H, W).
         """
         restored = cv2.idct(self.value)
@@ -107,7 +108,7 @@ class DctImage:
             return np.clip(restored, 0, 255).astype(np.uint8)
         return restored
 
-    def laplacian(self, *, is_uint8_output: bool = True) -> np.ndarray:
+    def laplacian(self, *, is_uint8_output: bool = True) -> ImageArray:
         """
         Frequency-domain Laplacian edge emphasis on DCT coefficients.
 
@@ -123,7 +124,7 @@ class DctImage:
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Edge-emphasized grayscale image with shape (H, W); uint8 when
             is_uint8_output is True, otherwise float32. When uint8 output is
             requested and |response| is constant (including all zeros), returns

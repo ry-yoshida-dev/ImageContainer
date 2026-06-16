@@ -8,6 +8,7 @@ A unified container class designed to maintain compatibility across different im
 
 | Component | Description |
 |-----------|-------------|
+| [types.py](./types.py) | Defines strict NumPy array type aliases for image pixel data. |
 | [ch_order.py](./ch_order.py) | Defines channel-order enums such as RGB and BGR. |
 | [format.py](./format.py) | Defines the image-format enum used across the package. |
 | [extention.py](./extention.py) | Defines supported file-extension enums for path collection. |

@@ -3,6 +3,7 @@ from __future__ import annotations
 import numpy as np
 
 from ....ch_order import ChannelOrder
+from ....types import ImageArray
 
 
 class ArrayGeometryMixin:
@@ -18,7 +19,7 @@ class ArrayGeometryMixin:
     class instead.
     """
 
-    value: np.ndarray
+    value: ImageArray
     channel_order: ChannelOrder
 
     @property

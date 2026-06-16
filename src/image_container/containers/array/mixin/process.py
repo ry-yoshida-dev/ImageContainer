@@ -6,6 +6,7 @@ import numpy as np
 from collections.abc import Callable
 
 from ....ch_order import ChannelOrder
+from ....types import ImageArray
 from .convert import ArrayConvertMixin
 
 
@@ -16,7 +17,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
     Subclasses ArrayConvertMixin for to_array and shared annotations.
     """
 
-    def equalize_histogram(self) -> np.ndarray:
+    def equalize_histogram(self) -> ImageArray:
         """
         Histogram equalization.
 
@@ -25,7 +26,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Equalized image array with the same channel layout as to_array would
             produce for this container's channel_order.
 
@@ -42,7 +43,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
         self,
         clip_limit: float = 2.0,
         tile_grid_size: tuple[int, int] = (8, 8),
-    ) -> np.ndarray:
+    ) -> ImageArray:
         """
         Contrast Limited Adaptive Histogram Equalization (CLAHE).
 
@@ -58,7 +59,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Result array: grayscale (H, W) or color with the same channel layout as
             to_array would produce for this container's channel_order.
         """
@@ -69,7 +70,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
         clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
         return self._lab_with_modified_l(clahe.apply)
 
-    def _lab_with_modified_l(self, modify_l: Callable[[np.ndarray], np.ndarray]) -> np.ndarray:
+    def _lab_with_modified_l(self, modify_l: Callable[[ImageArray], ImageArray]) -> ImageArray:
         """
         Apply a single-channel image function to only the L plane in LAB.
 
@@ -79,7 +80,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         Parameters
         ----------
-        modify_l : Callable[[np.ndarray], np.ndarray]
+        modify_l : Callable[[ImageArray], ImageArray]
             Function applied to the L channel. It receives a single-channel
             uint8 array of shape (H, W) and must return a modified array of the
             same shape and dtype. Typical examples are cv2.equalizeHist and
@@ -87,7 +88,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         Returns
         -------
-        np.ndarray
+        ImageArray
             Image array with L modified, in the same channel layout as
             to_array would produce for this container's channel_order.
         """
