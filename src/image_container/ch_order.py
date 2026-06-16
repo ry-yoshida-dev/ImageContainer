@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import cv2
-import numpy as np
 
 from collections.abc import Callable
 from enum import Enum
 from functools import reduce
 
-from .types import ImageArray
+from .types import UInt8Image
 
 
 class ChannelOrder(Enum):
@@ -120,7 +119,7 @@ class ChannelOrder(Enum):
     def cv2_array_converter(
         self,
         convert_from: ChannelOrder,
-    ) -> Callable[[ImageArray], ImageArray]:
+    ) -> Callable[[UInt8Image], UInt8Image]:
         """
         Callable that maps an array from convert_from layout to this layout.
 

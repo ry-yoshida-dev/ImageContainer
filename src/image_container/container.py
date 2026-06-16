@@ -10,9 +10,9 @@ from typing import TypeVar, Generic, Self
 from .ch_order import ChannelOrder
 from .binary_image import BinaryImage
 from .format import ImageFormats
-from .types import ImageArray
+from .types import UInt8Image
 
-T = TypeVar("T", ImageArray, Image.Image, torch.Tensor)
+T = TypeVar("T", UInt8Image, Image.Image, torch.Tensor)
 
 @dataclass(frozen=True)
 class ImageContainer(ABC, Generic[T]):
@@ -22,7 +22,7 @@ class ImageContainer(ABC, Generic[T]):
     Attributes
     ----------
     value: T
-        The image data (ImageArray, Image.Image, etc.).
+        The image data (UInt8Image, Image.Image, etc.).
     channel_order: ChannelOrder
         The channel order of the image.
     """
@@ -142,13 +142,13 @@ class ImageContainer(ABC, Generic[T]):
     def to_array(
         self,
         ch_order: ChannelOrder = ChannelOrder.BGR
-        ) -> ImageArray:
+        ) -> UInt8Image:
         """
         Get the image with the array format in the specified channel order.
 
         Returns
         -------
-        ImageArray: The array image.
+        UInt8Image: The array image.
         """
 
     @abstractmethod
@@ -187,7 +187,7 @@ class ImageContainer(ABC, Generic[T]):
         cls,
         image: ImageFormats,
         channel_order: ChannelOrder
-        ) -> ImageContainer[ImageArray] | ImageContainer[Image.Image]:
+        ) -> ImageContainer[UInt8Image] | ImageContainer[Image.Image]:
         """
         Register the image container.
 
@@ -200,7 +200,7 @@ class ImageContainer(ABC, Generic[T]):
 
         Returns:
         ----------
-        ImageContainer[ImageArray] | ImageContainer[Image.Image]:
+        ImageContainer[UInt8Image] | ImageContainer[Image.Image]:
             The registered image container.
         """
         if isinstance(image, np.ndarray):

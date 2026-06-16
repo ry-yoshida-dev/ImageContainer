@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import cv2
-import numpy as np
 
 from collections.abc import Callable
 
 from ....ch_order import ChannelOrder
-from ....types import ImageArray
+from ....types import UInt8Image
 from .convert import ArrayConvertMixin
 
 
@@ -17,7 +16,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
     Subclasses ArrayConvertMixin for to_array and shared annotations.
     """
 
-    def equalize_histogram(self) -> ImageArray:
+    def equalize_histogram(self) -> UInt8Image:
         """
         Histogram equalization.
 
@@ -26,7 +25,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         Returns
         -------
-        ImageArray
+        UInt8Image
             Equalized image array with the same channel layout as to_array would
             produce for this container's channel_order.
 
@@ -43,7 +42,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
         self,
         clip_limit: float = 2.0,
         tile_grid_size: tuple[int, int] = (8, 8),
-    ) -> ImageArray:
+    ) -> UInt8Image:
         """
         Contrast Limited Adaptive Histogram Equalization (CLAHE).
 
@@ -59,7 +58,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         Returns
         -------
-        ImageArray
+        UInt8Image
             Result array: grayscale (H, W) or color with the same channel layout as
             to_array would produce for this container's channel_order.
         """
@@ -70,7 +69,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
         clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
         return self._lab_with_modified_l(clahe.apply)
 
-    def _lab_with_modified_l(self, modify_l: Callable[[ImageArray], ImageArray]) -> ImageArray:
+    def _lab_with_modified_l(self, modify_l: Callable[[UInt8Image], UInt8Image]) -> UInt8Image:
         """
         Apply a single-channel image function to only the L plane in LAB.
 
@@ -80,7 +79,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         Parameters
         ----------
-        modify_l : Callable[[ImageArray], ImageArray]
+        modify_l : Callable[[UInt8Image], UInt8Image]
             Function applied to the L channel. It receives a single-channel
             uint8 array of shape (H, W) and must return a modified array of the
             same shape and dtype. Typical examples are cv2.equalizeHist and
@@ -88,7 +87,7 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         Returns
         -------
-        ImageArray
+        UInt8Image
             Image array with L modified, in the same channel layout as
             to_array would produce for this container's channel_order.
         """

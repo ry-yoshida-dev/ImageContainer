@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-import numpy as np
-
 from ....ch_order import ChannelOrder
-from ....types import ImageArray
+from ....types import UInt8Image
 
 
 class ArrayGeometryMixin:
@@ -19,7 +17,7 @@ class ArrayGeometryMixin:
     class instead.
     """
 
-    value: ImageArray
+    value: UInt8Image
     channel_order: ChannelOrder
 
     @property

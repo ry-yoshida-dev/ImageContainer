@@ -4,9 +4,9 @@ import torch
 from PIL import Image
 from enum import Enum
 
-from .types import ImageArray
+from .types import UInt8Image
 
-ImageFormats = ImageArray | Image.Image | torch.Tensor
+ImageFormats = UInt8Image | Image.Image | torch.Tensor
 
 class ImageFormat(Enum):
     """
@@ -14,7 +14,7 @@ class ImageFormat(Enum):
 
     Attributes
     ----------
-    ARRAY: ImageArray
+    ARRAY: UInt8Image
     PIL: Image.Image
     TORCH_TENSOR: torch.Tensor
     """

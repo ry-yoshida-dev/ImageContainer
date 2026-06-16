@@ -1,16 +1,15 @@
 from __future__ import annotations
 
 import cv2
-import numpy as np
 
-from ..types import ImageArray
+from ..types import UInt8Image
 
 _EVEN_DIMENSION_REMAINDER = 0
 
 
 def padding_to_even(
-    array: ImageArray,
-) -> tuple[ImageArray, tuple[int, int] | None]:
+    array: UInt8Image,
+) -> tuple[UInt8Image, tuple[int, int] | None]:
     """
     Pad a 2D array so height and width are even.
 
@@ -19,12 +18,12 @@ def padding_to_even(
 
     Parameters
     ----------
-    array : ImageArray
+    array : UInt8Image
         Input array of shape (height, width).
 
     Returns
     -------
-    array : ImageArray
+    array : UInt8Image
         Input or padded array with even height and width.
     source_shape : tuple[int, int] | None
         Original (height, width) when padding was applied; otherwise None.

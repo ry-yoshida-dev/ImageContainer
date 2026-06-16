@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 from ....ch_order import ChannelOrder
-from ....types import ImageArray
+from ....types import ImageArray, UInt8Image
 from .convert import ArrayConvertMixin
 
 
@@ -116,10 +116,10 @@ class ArrayStatsMixin(ArrayConvertMixin):
         rng = list(hist_range)
         match histogram_order:
             case ChannelOrder.GRAY:
-                gray: ImageArray = self.to_array(ChannelOrder.GRAY)
+                gray: UInt8Image = self.to_array(ChannelOrder.GRAY)
                 return cv2.calcHist([gray], [0], mask, [bins], rng)
             case ChannelOrder.BGR:
-                bgr: ImageArray = self.to_array(ChannelOrder.BGR)
+                bgr: UInt8Image = self.to_array(ChannelOrder.BGR)
                 h0 = cv2.calcHist([bgr], [0], mask, [bins], rng)
                 h1 = cv2.calcHist([bgr], [1], mask, [bins], rng)
                 h2 = cv2.calcHist([bgr], [2], mask, [bins], rng)

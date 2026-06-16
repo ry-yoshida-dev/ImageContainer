@@ -7,7 +7,7 @@ import numpy as np
 from dataclasses import dataclass
 
 from ..ch_order import ChannelOrder
-from ..types import ImageArray
+from ..types import ImageArray, UInt8Image
 from ..utils.padding import padding_to_even
 
 @dataclass
@@ -46,7 +46,7 @@ class DctImage:
     @classmethod
     def from_array(
         cls,
-        array: ImageArray,
+        array: UInt8Image,
         channel_order: ChannelOrder,
     ) -> DctImage:
         """
@@ -56,7 +56,7 @@ class DctImage:
 
         Parameters
         ----------
-        array : ImageArray
+        array : UInt8Image
             Input image array in the given channel order.
         channel_order : ChannelOrder
             Channel layout of the input array.
@@ -98,7 +98,8 @@ class DctImage:
         Returns
         -------
         ImageArray
-            Restored grayscale image array with shape (H, W).
+            Restored grayscale image array with shape (H, W); uint8 when
+            is_uint8_cast_enabled is True, otherwise float32.
         """
         restored = cv2.idct(self.value)
         if self.source_shape is not None:

@@ -8,7 +8,7 @@ import cv2
 import numpy as np
 
 from ....ch_order import ChannelOrder
-from ....types import ImageArray
+from ....types import ImageArray, UInt8Image
 from .convert import ArrayConvertMixin
 
 
@@ -44,7 +44,7 @@ class ArrayFilterMixin(ArrayConvertMixin):
             Single-channel array of shape (H, W); uint8 if is_uint8_output is True,
             otherwise float64.
         """
-        gray: ImageArray = self.to_array(ChannelOrder.GRAY)
+        gray: UInt8Image = self.to_array(ChannelOrder.GRAY)
         lap: ImageArray = cv2.Laplacian(gray, cv2.CV_64F, ksize=ksize)
         if is_uint8_output:
             return cv2.convertScaleAbs(lap)
@@ -77,7 +77,7 @@ class ArrayFilterMixin(ArrayConvertMixin):
             Array of shape (H, W, 2): channel 0 is ∂I/∂x, channel 1 is ∂I/∂y.
             dtype uint8 if is_uint8_output is True, otherwise float64.
         """
-        gray: ImageArray = self.to_array(ChannelOrder.GRAY)
+        gray: UInt8Image = self.to_array(ChannelOrder.GRAY)
         gx: ImageArray = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=ksize)
         gy: ImageArray = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=ksize)
         if is_uint8_output:

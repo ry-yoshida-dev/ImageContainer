@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import os
 
-import cv2
 import numpy as np
+
+import cv2
 
 from ...ch_order import ChannelOrder
 from ...container import ImageContainer
 from ...format import ImageFormat
-from ...types import ImageArray
+from ...types import UInt8Image
 from .mixin import ArrayFilterMixin, ArrayGeometryMixin, ArrayProcessMixin, ArrayStatsMixin
 from .mixin.hash import ArrayHashMixin
 from .protocols import SupportsArrayHash
@@ -20,7 +21,7 @@ class ArrayImageContainer(
     ArrayStatsMixin,
     ArrayProcessMixin,
     ArrayFilterMixin,
-    ImageContainer[ImageArray],
+    ImageContainer[UInt8Image],
     SupportsArrayHash,
 ):
     """
@@ -28,7 +29,7 @@ class ArrayImageContainer(
 
     Attributes:
     ----------
-    value: ImageArray
+    value: UInt8Image
         The numpy array.
     channel_order: ChannelOrder
         The channel order of the image.
@@ -52,7 +53,7 @@ class ArrayImageContainer(
 
         Parameters:
         ----------
-        image: ImageArray
+        image: UInt8Image
             The image to validate.
         channel_order: ChannelOrder
             The channel order of the image.
@@ -72,6 +73,8 @@ class ArrayImageContainer(
         if self.channel_order.is_1ch:
             if self.value.ndim != 2:
                 raise ValueError(f"Image must have 2 dimensions. Got {self.value.ndim}")
+        if self.value.dtype != np.uint8:
+            raise ValueError(f"Image must have uint8 dtype. Got {self.value.dtype}")
 
     def save(self, save_path: str) -> None:
         """
@@ -139,6 +142,6 @@ class ArrayImageContainer(
             raise FileNotFoundError(f"Image not found at {image_path}")
         channel_order = ChannelOrder.BGR
         return cls(
-            value=image,
+            value=np.asarray(image, dtype=np.uint8),
             channel_order=channel_order
             )

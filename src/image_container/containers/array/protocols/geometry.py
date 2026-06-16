@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import numpy as np
 from typing import Protocol
 
 from ....ch_order import ChannelOrder
-from ....types import ImageArray
+from ....types import UInt8Image
 
 
 class SupportsArrayGeometry(Protocol):
@@ -13,11 +12,11 @@ class SupportsArrayGeometry(Protocol):
 
     Attributes
     ----------
-    value : ImageArray
+    value : UInt8Image
         The numpy array payload.
     channel_order : ChannelOrder
         The channel order of the image.
     """
 
-    value: ImageArray
+    value: UInt8Image
     channel_order: ChannelOrder

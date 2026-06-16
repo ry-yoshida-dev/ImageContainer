@@ -3,13 +3,12 @@
 from __future__ import annotations
 
 import cv2
-import numpy as np
 from collections.abc import Callable
 from typing import Protocol, cast
 
 from image_container.ch_order import ChannelOrder
 from image_container.containers.array.mixin.convert import ArrayConvertMixin
-from image_container.types import ImageArray
+from image_container.types import ImageArray, UInt8Image
 
 
 class ImgHashComputer(Protocol):
@@ -22,7 +21,7 @@ class ImgHashComputer(Protocol):
         Consumes a BGR image array and returns hash bytes as an ndarray.
     """
 
-    def compute(self, img: ImageArray) -> ImageArray:
+    def compute(self, img: UInt8Image) -> ImageArray:
         ...
 
 
@@ -59,7 +58,7 @@ class ArrayHashMixin(ArrayConvertMixin):
         -----
         Input pixels are always obtained via to_array(ChannelOrder.BGR).
         """
-        bgr: ImageArray = self.to_array(ChannelOrder.BGR)
+        bgr: UInt8Image = self.to_array(ChannelOrder.BGR)
         hasher = cast(ImgHashComputer, create_hasher())
 
         hash_bytes: ImageArray = hasher.compute(bgr)

@@ -5,7 +5,7 @@ from PIL import Image
 
 from ....binary_image import BinaryImage
 from ....ch_order import ChannelOrder
-from ....types import ImageArray
+from ....types import UInt8Image
 
 
 class PILConvertMixin:
@@ -73,13 +73,13 @@ class PILConvertMixin:
     def to_array(
         self,
         ch_order: ChannelOrder = ChannelOrder.BGR
-        ) -> ImageArray:
+        ) -> UInt8Image:
         """
         Get the array image.
 
         Returns
         -------
-        ImageArray: The array image.
+        UInt8Image: The array image.
 
         Raises
         ------

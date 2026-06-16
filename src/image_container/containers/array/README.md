@@ -6,7 +6,7 @@ NumPy-backed image container implementation: ArrayImageContainer composes mixins
 
 | Item | Description |
 |------|-------------|
-| [container.py](container.py) | Concrete ArrayImageContainer; validates payload, exposes ImageFormat.ARRAY, wires mixins and SupportsArrayHash. |
+| [container.py](container.py) | Concrete ArrayImageContainer; validates uint8 payload and dimensions, exposes ImageFormat.ARRAY, wires mixins and SupportsArrayHash. |
 | [mixin/](mixin/) | Reusable behavior split into focused mixins (see [mixin/README.md](mixin/README.md)). |
 | [protocols/](protocols/) | Layered Protocol types for static typing (SupportsArrayGeometry -> process -> hash). |
 
