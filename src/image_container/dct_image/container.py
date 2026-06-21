@@ -43,48 +43,77 @@ class DctImage:
                 f"DCT image must have float32 dtype, got {self.value.dtype}"
             )
 
-    @classmethod
-    def from_array(
-        cls,
-        array: UInt8Image,
-        channel_order: ChannelOrder,
-    ) -> DctImage:
+    def _frequency_radius_squared(self) -> ImageArray:
         """
-        Create a DctImage from a numpy array image.
+        Build the per-coefficient squared radial frequency index (u^2 + v^2).
 
-        The input is converted to grayscale before applying the forward DCT.
+        Returns
+        -------
+        ImageArray
+            Mask array of shape (height, width) with float32 dtype.
+        """
+        height, width = self.value.shape
+        v_indices = np.arange(height, dtype=np.float32)[:, np.newaxis]
+        u_indices = np.arange(width, dtype=np.float32)[np.newaxis, :]
+        return (u_indices**2) + (v_indices**2)
+
+    def high_pass_filter(self, threshold: float) -> DctImage:
+        """
+        Zero out low-frequency DCT coefficients below a radial cutoff.
+
+        Coefficients at index (v, u) are kept when u^2 + v^2 > threshold.
+        The DC component at (0, 0) is always removed.
 
         Parameters
         ----------
-        array : UInt8Image
-            Input image array in the given channel order.
-        channel_order : ChannelOrder
-            Channel layout of the input array.
+        threshold : float
+            Squared radial frequency cutoff; must be non-negative.
 
         Returns
         -------
         DctImage
-            DCT coefficients with shape (H, W) and float32 dtype.
+            Filtered DCT coefficients with the same shape and source_shape.
 
-        Warns
-        -----
-        UserWarning
-            When height or width is odd, the grayscale image is padded by one
-            pixel on the bottom and/or right before DCT.
+        Raises
+        ------
+        ValueError
+            If threshold is negative.
         """
-        to_gray = ChannelOrder.GRAY.cv2_array_converter(channel_order)
-        gray = to_gray(array)
-        gray, source_shape = padding_to_even(gray)
-        if source_shape is not None:
-            warnings.warn(
-                (
-                    f"Grayscale shape {source_shape} has odd dimension(s); "
-                    f"padded to {gray.shape} for DCT."
-                ),
-                UserWarning,
-                stacklevel=2,
-            )
-        return cls(value=cv2.dct(gray.astype(np.float32)), source_shape=source_shape)
+        if threshold < 0:
+            raise ValueError(f"threshold must be non-negative, got {threshold}")
+        radius_squared = self._frequency_radius_squared()
+        mask = radius_squared > threshold
+        mask[0, 0] = False
+        filtered = self.value * mask.astype(np.float32)
+        return DctImage(value=filtered, source_shape=self.source_shape)
+
+    def low_pass_filter(self, threshold: float) -> DctImage:
+        """
+        Zero out high-frequency DCT coefficients above a radial cutoff.
+
+        Coefficients at index (v, u) are kept when u^2 + v^2 <= threshold.
+
+        Parameters
+        ----------
+        threshold : float
+            Squared radial frequency cutoff; must be non-negative.
+
+        Returns
+        -------
+        DctImage
+            Filtered DCT coefficients with the same shape and source_shape.
+
+        Raises
+        ------
+        ValueError
+            If threshold is negative.
+        """
+        if threshold < 0:
+            raise ValueError(f"threshold must be non-negative, got {threshold}")
+        radius_squared = self._frequency_radius_squared()
+        mask = radius_squared <= threshold
+        filtered = self.value * mask.astype(np.float32)
+        return DctImage(value=filtered, source_shape=self.source_shape)
 
     def idct(self, is_uint8_cast_enabled: bool = True) -> ImageArray:
         """
@@ -200,3 +229,46 @@ class DctImage:
             The size (width, height) of the DCT image.
         """
         return (self.width, self.height)
+
+    @classmethod
+    def from_array(
+        cls,
+        array: UInt8Image,
+        channel_order: ChannelOrder,
+    ) -> DctImage:
+        """
+        Create a DctImage from a numpy array image.
+
+        The input is converted to grayscale before applying the forward DCT.
+
+        Parameters
+        ----------
+        array : UInt8Image
+            Input image array in the given channel order.
+        channel_order : ChannelOrder
+            Channel layout of the input array.
+
+        Returns
+        -------
+        DctImage
+            DCT coefficients with shape (H, W) and float32 dtype.
+
+        Warns
+        -----
+        UserWarning
+            When height or width is odd, the grayscale image is padded by one
+            pixel on the bottom and/or right before DCT.
+        """
+        to_gray = ChannelOrder.GRAY.cv2_array_converter(channel_order)
+        gray = to_gray(array)
+        gray, source_shape = padding_to_even(gray)
+        if source_shape is not None:
+            warnings.warn(
+                (
+                    f"Grayscale shape {source_shape} has odd dimension(s); "
+                    f"padded to {gray.shape} for DCT."
+                ),
+                UserWarning,
+                stacklevel=2,
+            )
+        return cls(value=cv2.dct(gray.astype(np.float32)), source_shape=source_shape)
