@@ -255,6 +255,37 @@ class DctImageBase(ABC):
         """
         return (self.width, self.height)
 
+    @property
+    def dc_component(self) -> ImageArray:
+        """
+        Get DCT coefficients at DC positions only.
+
+        Non-DC positions are zero. DC placement follows the transform mode
+        (global origin for non-blocked DCT, per-block origin for block DCT).
+
+        Returns
+        -------
+        ImageArray
+            DC-only coefficient array with shape (height, width) and float32 dtype.
+        """
+        dc_mask = self._build_dc_mask()
+        return self.value * dc_mask.astype(np.float32)
+
+    @property
+    def ac_components(self) -> ImageArray:
+        """
+        Get DCT coefficients at AC positions only.
+
+        DC positions are zero. AC placement is the complement of dc_component.
+
+        Returns
+        -------
+        ImageArray
+            AC-only coefficient array with shape (height, width) and float32 dtype.
+        """
+        dc_mask = self._build_dc_mask()
+        return self.value * (~dc_mask).astype(np.float32)
+
     def _crop_to_source_shape(self, array: ImageArray) -> ImageArray:
         """
         Crop a spatial array back to source_shape when padding was applied.
@@ -313,6 +344,19 @@ class DctImageBase(ABC):
         """
         if threshold < 0:
             raise ValueError(f"threshold must be non-negative, got {threshold}")
+
+    def _build_dc_mask(self) -> BinaryArray:
+        """
+        Build a boolean mask that is True at DC coefficient positions.
+
+        Returns
+        -------
+        BinaryArray
+            Boolean mask array with True at DC positions.
+        """
+        mask: BinaryArray = np.ones(self.value.shape, dtype=bool)
+        self._clear_dc_components(mask)
+        return ~mask
 
     def _build_high_pass_mask(self, threshold: float) -> BinaryArray:
         """

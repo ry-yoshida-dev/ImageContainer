@@ -57,6 +57,24 @@ class TestNonBlockedDctImage:
         with pytest.raises(ValueError, match="threshold must be non-negative"):
             container.low_pass_filter(-1.0)
 
+    def test_dc_and_ac_components_partition_coefficients(
+        self,
+        bgr_image_even: np.ndarray,
+    ) -> None:
+        container = NonBlockedDctImage.from_array(bgr_image_even, ChannelOrder.BGR)
+        dc = container.dc_component
+        ac = container.ac_components
+
+        assert dc.shape == container.shape
+        assert ac.shape == container.shape
+        assert dc.dtype == np.float32
+        assert ac.dtype == np.float32
+        assert dc[0, 0] == container.value[0, 0]
+        assert ac[0, 0] == 0.0
+        assert np.all(dc[1:, :] == 0.0)
+        assert np.all(dc[0, 1:] == 0.0)
+        np.testing.assert_allclose(dc + ac, container.value)
+
 
 class TestBlockedDctImage:
     def test_from_array_pads_to_block_size(self, bgr_image_odd: np.ndarray) -> None:
@@ -94,6 +112,29 @@ class TestBlockedDctImage:
         filtered = container.high_pass_filter(threshold=0.0)
         dc_positions = filtered.value[0::block_size, 0::block_size]
         assert np.all(dc_positions == 0.0)
+
+    def test_dc_and_ac_components_partition_per_block_coefficients(
+        self,
+        bgr_image_even: np.ndarray,
+    ) -> None:
+        block_size = 8
+        container = BlockedDctImage.from_array(
+            bgr_image_even,
+            ChannelOrder.BGR,
+            block_size=block_size,
+        )
+        dc = container.dc_component
+        ac = container.ac_components
+        dc_positions = dc[0::block_size, 0::block_size]
+
+        assert dc.shape == container.shape
+        assert ac.shape == container.shape
+        assert np.array_equal(
+            dc_positions,
+            container.value[0::block_size, 0::block_size],
+        )
+        assert np.all(ac[0::block_size, 0::block_size] == 0.0)
+        np.testing.assert_allclose(dc + ac, container.value)
 
     def test_roundtrip_matches_grayscale(
         self,

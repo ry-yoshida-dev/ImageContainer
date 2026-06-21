@@ -8,6 +8,6 @@ Utilities for working with 2D DCT coefficient images, including global and block
 
 | Component | Description |
 |-----------|-------------|
-| [base.py](./base.py) | Shared DctImageBase abstract container with validation, IDCT, radial filters, and Laplacian helpers. |
+| [base.py](./base.py) | Shared DctImageBase abstract container with validation, IDCT, DC/AC coefficient views, radial filters, and Laplacian helpers. |
 | [container/](./container/) | NonBlockedDctImage and BlockedDctImage concrete containers. |
 | [utils/](./utils/) | Internal block-wise DCT matrix cache and transform helpers (not exported). |
