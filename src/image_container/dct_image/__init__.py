@@ -1,5 +1,8 @@
-from .container import DctImage
+from .base import DctImageBase
+from .container import BlockedDctImage, NonBlockedDctImage
 
 __all__ = [
-    "DctImage",
+    "BlockedDctImage",
+    "DctImageBase",
+    "NonBlockedDctImage",
 ]

@@ -4,7 +4,7 @@ from PIL import Image
 
 from ....binary_image import BinaryImage
 from ....ch_order import ChannelOrder
-from ....dct_image import DctImage
+from ....dct_image import BlockedDctImage, NonBlockedDctImage
 from ....types import UInt8Image
 
 
@@ -14,7 +14,7 @@ class ArrayConvertMixin:
     - PIL
     - NumPy with another channel order
     - BinaryImage
-    - DctImage
+    - NonBlockedDctImage / BlockedDctImage
     """
 
     value: UInt8Image
@@ -95,16 +95,46 @@ class ArrayConvertMixin:
         gray = self.to_gray()
         return BinaryImage(value=(gray >= threshold))
 
-    def dct(self) -> DctImage:
+    def non_blocked_dct(self) -> NonBlockedDctImage:
         """
-        Discrete Cosine Transform (DCT).
+        Global (non-blocked) Discrete Cosine Transform (DCT).
+
+        Applies a single 2D DCT over the full grayscale image.
 
         Returns
         -------
-        DctImage
-            DCT coefficients with shape (H, W) and float32 dtype.
+        NonBlockedDctImage
+            Global DCT coefficients with shape (H, W) and float32 dtype.
         """
-        return DctImage.from_array(self.value, self.channel_order)
+        return NonBlockedDctImage.from_array(self.value, self.channel_order)
+
+    def blocked_dct(self, block_size: int) -> BlockedDctImage:
+        """
+        Block-wise Discrete Cosine Transform (DCT).
+
+        Splits the grayscale image into non-overlapping block_size x block_size
+        blocks and applies DCT independently to each block.
+
+        Parameters
+        ----------
+        block_size : int
+            Side length of each square DCT block in pixels.
+
+        Returns
+        -------
+        BlockedDctImage
+            Block DCT coefficients with shape (H, W) and float32 dtype.
+
+        Raises
+        ------
+        ValueError
+            If block_size is not positive.
+        """
+        return BlockedDctImage.from_array(
+            self.value,
+            self.channel_order,
+            block_size,
+        )
 
     def to_ch_swapped_image(
         self,

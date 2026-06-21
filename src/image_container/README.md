@@ -16,7 +16,7 @@ A unified container class designed to maintain compatibility across different im
 | [container.py](./container.py) | Defines the base container and the factory-style registration entry point. |
 | [containers/](./containers/) | Contains concrete container implementations for each image format. |
 | [binary_image/](./binary_image/) | Provides binary-image helpers and the dedicated binary-image container. |
-| [dct_image/](./dct_image/) | Provides DCT coefficient image container, IDCT restoration, and frequency-domain Laplacian. |
+| [dct_image/](./dct_image/) | Provides NonBlockedDctImage and BlockedDctImage containers, IDCT restoration, and frequency-domain Laplacian. |
 | [utils/](./utils/) | Shared helpers such as spatial padding for even-sized processing. |
 
 ## Examples

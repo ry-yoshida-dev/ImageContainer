@@ -6,7 +6,7 @@ Mixins that extend array-backed containers with conversion, layout-aware geometr
 
 | Item | Description |
 |------|-------------|
-| [convert.py](convert.py) | ArrayConvertMixin: to_array, PIL/binary/DCT exports, grayscale and 3-channel helpers. |
+| [convert.py](convert.py) | ArrayConvertMixin: to_array, PIL/binary/DCT exports, grayscale and 3-channel helpers; non_blocked_dct and blocked_dct. |
 | [geometry.py](geometry.py) | ArrayGeometryMixin: shape and spatial accessors over value and channel_order. |
 | [hash.py](hash.py) | ArrayHashMixin: perceptual and related hashes via OpenCV img_hash on BGR views. |
 | [filter.py](filter.py) | ArrayFilterMixin: Laplacian and Sobel on a grayscale view via OpenCV. |

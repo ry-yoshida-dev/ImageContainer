@@ -5,7 +5,7 @@ from .binary_image import (
     Connectivity,
     ConnectedComponents
     )
-from .dct_image import DctImage
+from .dct_image import BlockedDctImage, DctImageBase, NonBlockedDctImage
 from .ch_order import ChannelOrder
 from .format import ImageFormat
 from .iterator import ImageIterator
@@ -22,7 +22,9 @@ __all__ = [
     "BinaryImage",
     "Connectivity",
     "ConnectedComponents",
-    "DctImage",
+    "BlockedDctImage",
+    "DctImageBase",
+    "NonBlockedDctImage",
     "ChannelOrder",
     "ImageFormat",
     "ImageIterator",
