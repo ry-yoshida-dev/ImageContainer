@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import cast
+
 import cv2
 
 from collections.abc import Callable
@@ -34,9 +36,11 @@ class ArrayProcessMixin(ArrayConvertMixin):
         OpenCV equalizeHist expects 8-bit single-channel images for grayscale.
         """
         if self.channel_order == ChannelOrder.GRAY:
-            return cv2.equalizeHist(self.value)
+            return cast(UInt8Image, cv2.equalizeHist(self.value))
 
-        return self._lab_with_modified_l(cv2.equalizeHist)
+        return self._lab_with_modified_l(
+            cast(Callable[[UInt8Image], UInt8Image], cv2.equalizeHist)
+        )
 
     def clahe(
         self,
@@ -64,10 +68,10 @@ class ArrayProcessMixin(ArrayConvertMixin):
         """
         if self.channel_order == ChannelOrder.GRAY:
             clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
-            return clahe.apply(self.value)
+            return cast(UInt8Image, clahe.apply(self.value))
 
         clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
-        return self._lab_with_modified_l(clahe.apply)
+        return self._lab_with_modified_l(cast(Callable[[UInt8Image], UInt8Image], clahe.apply))
 
     def _lab_with_modified_l(self, modify_l: Callable[[UInt8Image], UInt8Image]) -> UInt8Image:
         """
@@ -95,7 +99,10 @@ class ArrayProcessMixin(ArrayConvertMixin):
 
         lab = self.to_array(ChannelOrder.LAB)
         l_ch, a_ch, b_ch = cv2.split(lab)
-        merged = cv2.merge([modify_l(l_ch), a_ch, b_ch])
+        merged = cast(
+            UInt8Image,
+            cv2.merge([modify_l(cast(UInt8Image, l_ch)), a_ch, b_ch]),
+        )
         return ArrayImageContainer(value=merged, channel_order=ChannelOrder.LAB).to_array(
             self.channel_order
         )

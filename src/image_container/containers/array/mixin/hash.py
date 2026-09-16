@@ -6,9 +6,9 @@ import cv2
 from collections.abc import Callable
 from typing import Protocol, cast
 
-from image_container.ch_order import ChannelOrder
-from image_container.containers.array.mixin.convert import ArrayConvertMixin
-from image_container.types import ImageArray, UInt8Image
+from ....ch_order import ChannelOrder
+from ....types import ImageArray, UInt8Image
+from .convert import ArrayConvertMixin
 
 
 class ImgHashComputer(Protocol):
