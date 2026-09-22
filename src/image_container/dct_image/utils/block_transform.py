@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+from collections.abc import Callable
+
+import cv2
 import numpy as np
 from dataclasses import dataclass
 
 from ...types import ImageArray
-from .dct_matrix import BlockDctMatrices
-
-_MIN_BLOCK_SIZE = 1
 
 
 @dataclass(frozen=True)
@@ -14,13 +14,16 @@ class BlockDctTransform:
     """
     Forward and inverse 2D DCT applied independently to non-overlapping blocks.
 
-    Block transforms are vectorized with batched matrix multiplication against
-    precomputed OpenCV-compatible 2D DCT matrices.
+    The 2D DCT is separable, so every block row of the image is transformed in
+    one cv2.dct / cv2.idct call with cv2.DCT_ROWS, then every block column in a
+    second call. The result is identical to calling cv2.dct / cv2.idct on each
+    block separately.
 
     Parameters
     ----------
     block_size : int
-        Side length of each square block in pixels.
+        Side length of each square block in pixels. Must be positive and even,
+        because OpenCV only implements the DCT for even-length rows.
     """
 
     block_size: int
@@ -32,11 +35,11 @@ class BlockDctTransform:
         Raises
         ------
         ValueError
-            If block_size is less than 1.
+            If block_size is not positive or not even.
         """
-        if self.block_size < _MIN_BLOCK_SIZE:
+        if self.block_size <= 0 or self.block_size % 2 != 0:
             raise ValueError(
-                f"block_size must be at least {_MIN_BLOCK_SIZE}, got {self.block_size}"
+                f"block_size must be a positive even number, got {self.block_size}"
             )
 
     def forward(self, gray: ImageArray) -> ImageArray:
@@ -60,9 +63,8 @@ class BlockDctTransform:
             If gray is not 2D or spatial dimensions are not divisible by
             block_size.
         """
-        self._validate_spatial_array(gray)
-        matrices = BlockDctMatrices.from_block_size(self.block_size)
-        return self._apply_block_matrix(gray, matrices.forward)
+        self.validate_spatial_array(gray)
+        return self._apply_separable(gray, self._forward_rows)
 
     def inverse(self, coefficients: ImageArray) -> ImageArray:
         """
@@ -85,9 +87,8 @@ class BlockDctTransform:
             If coefficients is not 2D or spatial dimensions are not divisible
             by block_size.
         """
-        self._validate_spatial_array(coefficients)
-        matrices = BlockDctMatrices.from_block_size(self.block_size)
-        return self._apply_block_matrix(coefficients, matrices.inverse)
+        self.validate_spatial_array(coefficients)
+        return self._apply_separable(coefficients, self._inverse_rows)
 
     def frequency_radius_squared(self, height: int, width: int) -> ImageArray:
         """
@@ -125,44 +126,82 @@ class BlockDctTransform:
         col_tiles = width // self.block_size
         return np.tile(local_mask, (row_tiles, col_tiles))
 
-    def _apply_block_matrix(
-        self,
-        array: ImageArray,
-        matrix: ImageArray,
-    ) -> ImageArray:
+    @staticmethod
+    def _forward_rows(rows: ImageArray) -> ImageArray:
         """
-        Reshape spatial data into blocks, apply a linear map, and flatten back.
+        Apply the 1D forward DCT to every row.
 
         Parameters
         ----------
-        array : ImageArray
-            Input array of shape (height, width).
-        matrix : ImageArray
-            Square matrix of shape (pixel_count, pixel_count) applied to each
-            flattened block via right multiplication by matrix.T.
+        rows : ImageArray
+            Contiguous float32 array of shape (row_count, block_size).
 
         Returns
         -------
         ImageArray
-            Transformed array with the same shape as array.
+            Row-wise DCT coefficients with the same shape as rows.
+        """
+        return np.asarray(cv2.dct(rows, flags=cv2.DCT_ROWS), dtype=np.float32)
+
+    @staticmethod
+    def _inverse_rows(rows: ImageArray) -> ImageArray:
+        """
+        Apply the 1D inverse DCT to every row.
+
+        Parameters
+        ----------
+        rows : ImageArray
+            Contiguous float32 array of shape (row_count, block_size).
+
+        Returns
+        -------
+        ImageArray
+            Row-wise restored samples with the same shape as rows.
+        """
+        return np.asarray(cv2.idct(rows, flags=cv2.DCT_ROWS), dtype=np.float32)
+
+    def _apply_separable(
+        self,
+        array: ImageArray,
+        row_transform: Callable[[ImageArray], ImageArray],
+    ) -> ImageArray:
+        """
+        Apply a 1D transform along block rows, then along block columns.
+
+        Parameters
+        ----------
+        array : ImageArray
+            Input array of shape (height, width) divisible by block_size.
+        row_transform : Callable[[ImageArray], ImageArray]
+            1D transform applied to each row of a (row_count, block_size) array.
+
+        Returns
+        -------
+        ImageArray
+            Transformed float32 array with the same shape as array.
         """
         height, width = array.shape
-        pixel_count = self.block_size * self.block_size
-        block_rows = height // self.block_size
-        block_cols = width // self.block_size
         blocks = array.reshape(
-            block_rows,
+            height // self.block_size,
             self.block_size,
-            block_cols,
+            width // self.block_size,
             self.block_size,
         ).transpose(0, 2, 1, 3)
-        transformed = blocks.reshape(-1, pixel_count) @ matrix.T
-        return transformed.reshape(blocks.shape).transpose(0, 2, 1, 3).reshape(
+        block_shape = blocks.shape
+        row_transformed = row_transform(
+            np.ascontiguousarray(blocks, dtype=np.float32).reshape(-1, self.block_size)
+        ).reshape(block_shape)
+        columns = np.ascontiguousarray(row_transformed.transpose(0, 1, 3, 2))
+        fully_transformed = row_transform(columns.reshape(-1, self.block_size)).reshape(
+            block_shape
+        )
+        restored: ImageArray = fully_transformed.transpose(0, 3, 1, 2).reshape(
             height,
             width,
         )
+        return restored
 
-    def _validate_spatial_array(self, array: ImageArray) -> None:
+    def validate_spatial_array(self, array: ImageArray) -> None:
         """
         Validate a 2D array whose dimensions are divisible by block_size.
 

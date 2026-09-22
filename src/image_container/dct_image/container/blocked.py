@@ -11,44 +11,67 @@ from ...types import BinaryArray, ImageArray, UInt8Image
 from ...utils.padding import padding_to_block_size
 from ..base import DctImageBase
 from ..utils.block_transform import BlockDctTransform
+from ..utils.zigzag_scan import ZigzagScan
 
 
 @dataclass(kw_only=True)
 class BlockedDctImage(DctImageBase):
     """
-    A container for block-wise 2D DCT coefficient images.
+    A container for block-wise 2D DCT coefficient images in spatial layout.
+
+    Every block_size x block_size tile of value holds the coefficients of the
+    matching image block in row-major order, so the coefficient for vertical
+    frequency v and horizontal frequency u of a block sits at offset (v, u)
+    inside the tile. Coefficients in JPEG zigzag order must be converted with
+    ZigzagDctCoefficients.to_blocked instead of being reshaped into value.
 
     Parameters
     ----------
     value : ImageArray
         DCT coefficients as a 2D float32 array of shape (height, width).
     block_size : int
-        Side length of each square DCT block in pixels.
+        Side length of each square DCT block in pixels; must be positive and
+        even.
+    coefficient_count : int
+        Number of leading zigzag coefficients per block that carry data; must
+        be in [1, block_size ** 2]. Coefficients beyond it were not available
+        and must be zero. block_size ** 2 means every coefficient is present.
     source_shape : tuple[int, int] | None, default None
         Original (height, width) before block-size padding in from_array.
         When set, idct crops the restored image back to this shape.
     """
 
     block_size: int
+    coefficient_count: int
 
     def _validate_transform_specific(self) -> None:
         """
-        Validate block_size and spatial divisibility.
+        Validate block_size, spatial divisibility, and coefficient_count.
 
         Raises
         ------
         ValueError
-            If block_size is not positive or does not divide spatial dimensions.
+            If block_size is not a positive even number or does not divide
+            spatial dimensions, coefficient_count is out of range, or a
+            coefficient beyond coefficient_count is non-zero.
         """
-        if self.block_size <= 0:
-            raise ValueError(f"block_size must be positive, got {self.block_size}")
-        height, width = self.value.shape
-        if height % self.block_size != 0 or width % self.block_size != 0:
-            raise ValueError(
-                "DCT image shape "
-                f"{self.value.shape} must be divisible by block_size "
-                f"{self.block_size}"
-            )
+        self._block_transform.validate_spatial_array(self.value)
+        ZigzagScan(block_size=self.block_size).validate_truncated_layout(
+            self.value,
+            self.coefficient_count,
+        )
+
+    @property
+    def is_complete(self) -> bool:
+        """
+        Check whether every coefficient of each block is available.
+
+        Returns
+        -------
+        bool
+            True when coefficient_count equals block_size ** 2.
+        """
+        return self.coefficient_count == self.block_size * self.block_size
 
     @cached_property
     def _block_transform(self) -> BlockDctTransform:
@@ -113,11 +136,13 @@ class BlockedDctImage(DctImageBase):
         Returns
         -------
         BlockedDctImage
-            New container with the same block_size and source_shape.
+            New container with the same block_size, coefficient_count, and
+            source_shape.
         """
         return BlockedDctImage(
             value=filtered,
             block_size=self.block_size,
+            coefficient_count=self.coefficient_count,
             source_shape=self.source_shape,
         )
 
@@ -146,7 +171,8 @@ class BlockedDctImage(DctImageBase):
         Returns
         -------
         BlockedDctImage
-            Block DCT coefficients with shape (H, W) and float32 dtype.
+            Block DCT coefficients with shape (H, W), float32 dtype, and every
+            coefficient available.
 
         Warns
         -----
@@ -157,10 +183,9 @@ class BlockedDctImage(DctImageBase):
         Raises
         ------
         ValueError
-            If block_size is not positive.
+            If block_size is not a positive even number.
         """
-        if block_size <= 0:
-            raise ValueError(f"block_size must be positive, got {block_size}")
+        block_transform = BlockDctTransform(block_size=block_size)
         to_gray = ChannelOrder.GRAY.cv2_array_converter(channel_order)
         gray = to_gray(array)
         gray, source_shape = padding_to_block_size(gray, block_size)
@@ -173,10 +198,10 @@ class BlockedDctImage(DctImageBase):
                 UserWarning,
                 stacklevel=2,
             )
-        block_transform = BlockDctTransform(block_size=block_size)
         coefficients = block_transform.forward(gray.astype(np.float32))
         return cls(
             value=coefficients,
             block_size=block_size,
+            coefficient_count=block_size * block_size,
             source_shape=source_shape,
         )
