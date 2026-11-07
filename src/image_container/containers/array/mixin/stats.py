@@ -117,12 +117,12 @@ class ArrayStatsMixin(ArrayConvertMixin):
         match histogram_order:
             case ChannelOrder.GRAY:
                 gray: UInt8Image = self.to_array(ChannelOrder.GRAY)
-                return cv2.calcHist([gray], [0], mask, [bins], rng)
+                return cv2.calcHist([gray], [0], mask, [bins], rng).reshape(bins, 1)
             case ChannelOrder.BGR:
                 bgr: UInt8Image = self.to_array(ChannelOrder.BGR)
-                h0 = cv2.calcHist([bgr], [0], mask, [bins], rng)
-                h1 = cv2.calcHist([bgr], [1], mask, [bins], rng)
-                h2 = cv2.calcHist([bgr], [2], mask, [bins], rng)
+                h0 = cv2.calcHist([bgr], [0], mask, [bins], rng).reshape(bins, 1)
+                h1 = cv2.calcHist([bgr], [1], mask, [bins], rng).reshape(bins, 1)
+                h2 = cv2.calcHist([bgr], [2], mask, [bins], rng).reshape(bins, 1)
                 return np.concatenate([h0, h1, h2], axis=1)
             case _:
                 raise ValueError(
