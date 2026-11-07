@@ -205,6 +205,11 @@ class ImageContainer(ABC, Generic[T]):
         ----------
         ImageContainerType:
             The registered image container.
+
+        Raises:
+        ----------
+        ValueError:
+            If the image is not a NumPy array, PIL image, or torch tensor.
         """
         if isinstance(image, np.ndarray):
             from .containers.array import ArrayImageContainer
@@ -218,12 +223,14 @@ class ImageContainer(ABC, Generic[T]):
                 value=image,
                 channel_order=channel_order
                 )
-        else:
+        elif isinstance(image, torch.Tensor):
             from .containers.tensor import TensorImageContainer
             return TensorImageContainer(
                 value=image,
                 channel_order=channel_order
                 )
+        else:
+            raise ValueError(f"Unsupported image type: {type(image).__name__}")
 
     @abstractmethod
     def save(
