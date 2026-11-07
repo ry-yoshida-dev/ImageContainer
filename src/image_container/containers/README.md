@@ -8,6 +8,6 @@ Concrete `ImageContainer` implementations, one per supported image format, toget
 
 | Component | Description |
 |-----------|-------------|
-| [array/](./array/) | `ArrayImageContainer` for NumPy uint8 pixel buffers. |
-| [pil/](./pil/) | `PILImageContainer` for `PIL.Image.Image` images. |
-| [tensor/](./tensor/) | `TensorImageContainer` for `torch.Tensor` images kept on their own device. |
+| [array/](./array/README.md) | `ArrayImageContainer` for NumPy uint8 pixel buffers. |
+| [pil/](./pil/README.md) | `PILImageContainer` for `PIL.Image.Image` images. |
+| [tensor/](./tensor/README.md) | `TensorImageContainer` for `torch.Tensor` images kept on their own device. |

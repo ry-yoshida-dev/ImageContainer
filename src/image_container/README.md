@@ -2,7 +2,7 @@
 
 ## Overview
 
-A unified container class designed to maintain compatibility across different image formats including PIL images, BGR/RGB arrays, and other image representations.
+A unified container class that keeps PIL images, BGR/RGB arrays, and torch tensors interchangeable.
 
 ## Components
 
@@ -14,34 +14,12 @@ A unified container class designed to maintain compatibility across different im
 | [extention.py](./extention.py) | Defines supported file-extension enums for path collection. |
 | [iterator.py](./iterator.py) | Provides directory-based image iteration and format-specific container creation. |
 | [container.py](./container.py) | Defines the base container and the factory-style registration entry point. |
-| [containers/](./containers/) | Contains concrete container implementations for each image format. |
-| [binary_image/](./binary_image/) | Provides binary-image helpers and the dedicated binary-image container. |
-| [dct_image/](./dct_image/) | Provides NonBlockedDctImage, BlockedDctImage, and ZigzagDctCoefficients containers, IDCT restoration, and frequency-domain Laplacian. |
-| [utils/](./utils/) | Shared helpers such as spatial padding for even-sized processing. |
+| [containers/](./containers/README.md) | Contains concrete container implementations for each image format. |
+| [binary_image/](./binary_image/README.md) | Provides binary-image helpers and the dedicated binary-image container. |
+| [dct_image/](./dct_image/README.md) | Provides NonBlockedDctImage, BlockedDctImage, and ZigzagDctCoefficients containers, IDCT restoration, and frequency-domain Laplacian. |
+| [utils/](./utils/README.md) | Shared helpers such as spatial padding for even-sized processing. |
 
 ## Examples
-
-### Register In-Memory Images
-
-```python
-import numpy as np
-from PIL import Image
-
-from image_container.ch_order import ChannelOrder
-from image_container.container import ImageContainer
-
-# NumPy array input (BGR)
-array_image = np.zeros((256, 256, 3), dtype=np.uint8)
-array_container = ImageContainer.register(array_image, ChannelOrder.BGR)
-array_resized = array_container.resize(width=128, height=128)
-
-# PIL input (RGB)
-pil_image = Image.new("RGB", (256, 256), color=(0, 0, 0))
-pil_container = ImageContainer.register(pil_image, ChannelOrder.RGB)
-pil_resized = pil_container.resize(width=128, height=128)
-```
-
-### Iterate Images From Directory
 
 ```python
 from image_container.format import ImageFormat

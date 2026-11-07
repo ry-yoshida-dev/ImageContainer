@@ -1,14 +1,16 @@
-# Overview
+# mixin
 
-Mixins that extend array-backed containers with conversion, layout-aware geometry, OpenCV processing and hashing (opencv-contrib img_hash), and aggregate statistics. ArrayConvertMixin is the shared base for methods that need to_array and channel-order handling.
+## Overview
 
-# Components
+Mixins that extend `ArrayImageContainer` with conversion, geometry, OpenCV processing and hashing, filters, and statistics.
 
-| Item | Description |
-|------|-------------|
-| [convert.py](convert.py) | ArrayConvertMixin: to_array, PIL/binary/DCT exports, grayscale and 3-channel helpers; non_blocked_dct and blocked_dct. |
-| [geometry.py](geometry.py) | ArrayGeometryMixin: shape and spatial accessors over value and channel_order. |
-| [hash.py](hash.py) | ArrayHashMixin: perceptual and related hashes via OpenCV img_hash on BGR views. |
-| [filter.py](filter.py) | ArrayFilterMixin: Laplacian and Sobel on a grayscale view via OpenCV. |
-| [process.py](process.py) | ArrayProcessMixin: histogram equalization, CLAHE, and LAB L-channel helpers. |
-| [stats.py](stats.py) | ArrayStatsMixin: gray/BGR means and histogram-related aggregates. |
+## Components
+
+| Component | Description |
+|-----------|-------------|
+| [convert.py](./convert.py) | `ArrayConvertMixin`: array, PIL, binary, and DCT exports; shared base for channel-order handling. |
+| [geometry.py](./geometry.py) | `ArrayGeometryMixin`: shape and spatial accessors. |
+| [hash.py](./hash.py) | `ArrayHashMixin`: perceptual hashes via OpenCV `img_hash`. |
+| [filter.py](./filter.py) | `ArrayFilterMixin`: Laplacian and Sobel on a grayscale view. |
+| [process.py](./process.py) | `ArrayProcessMixin`: histogram equalization, CLAHE, and LAB L-channel helpers. |
+| [stats.py](./stats.py) | `ArrayStatsMixin`: gray/BGR means and histogram aggregates. |

@@ -1,11 +1,13 @@
-# Overview
+# protocols
 
-Structural typing Protocol definitions for numpy-array-backed containers. Each protocol layers constraints used by mixins and the concrete ArrayImageContainer.
+## Overview
 
-# Components
+Layered `Protocol` definitions used to type the array container mixins.
 
-| Item | Description |
-|------|-------------|
-| [geometry.py](geometry.py) | Base geometry surface (value, channel_order). |
-| [process.py](process.py) | Adds to_array for conversion-aware processing mixins. |
-| [hash.py](hash.py) | Adds perceptual and related hash property accessors. |
+## Components
+
+| Component | Description |
+|-----------|-------------|
+| [geometry.py](./geometry.py) | Base geometry surface (`value`, `channel_order`). |
+| [process.py](./process.py) | Adds `to_array` for processing mixins. |
+| [hash.py](./hash.py) | Adds perceptual hash accessors. |
