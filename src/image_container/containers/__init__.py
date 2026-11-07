@@ -9,4 +9,4 @@ __all__ = [
     "ImageContainerType",
     "PILImageContainer",
     "TensorImageContainer",
-    ]
+]

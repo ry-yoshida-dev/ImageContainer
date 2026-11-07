@@ -1,9 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from functools import cached_property
 
 import numpy as np
-from dataclasses import dataclass
 from numpy.typing import NDArray
 
 from ...types import ImageArray

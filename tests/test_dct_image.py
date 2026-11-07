@@ -59,7 +59,7 @@ class TestNonBlockedDctImage:
     ) -> None:
         container = NonBlockedDctImage.from_array(bgr_image_even, ChannelOrder.BGR)
         with pytest.raises(ValueError, match="threshold must be non-negative"):
-            container.low_pass_filter(-1.0)
+            _ = container.low_pass_filter(-1.0)
 
     def test_dc_and_ac_components_partition_coefficients(
         self,
@@ -183,7 +183,6 @@ class TestBlockDctTransform:
         max_error = float(np.max(np.abs(container.value - expected)))
         assert max_error < 1e-5
 
-
     def test_matches_per_block_opencv(self) -> None:
         rng = np.random.default_rng(3)
         block_size = 8
@@ -194,15 +193,15 @@ class TestBlockDctTransform:
         for top in range(0, gray.shape[0], block_size):
             for left in range(0, gray.shape[1], block_size):
                 block = gray[top : top + block_size, left : left + block_size]
-                expected[top : top + block_size, left : left + block_size] = (
-                    cv2.dct(block)
+                expected[top : top + block_size, left : left + block_size] = cv2.dct(
+                    block
                 )
         np.testing.assert_allclose(coefficients, expected, atol=1e-3)
 
     @pytest.mark.parametrize("block_size", [0, -2, 3, 7])
     def test_rejects_non_positive_or_odd_block_size(self, block_size: int) -> None:
         with pytest.raises(ValueError, match="positive even number"):
-            BlockDctTransform(block_size=block_size)
+            _ = BlockDctTransform(block_size=block_size)
 
 
 class TestZigzagScan:
@@ -238,8 +237,7 @@ class TestZigzagScan:
         scan = ZigzagScan(block_size=8)
         coefficients = np.zeros((1, 1, coefficient_count), dtype=np.float32)
         with pytest.raises(ValueError, match="coefficient_count must be in"):
-            scan.scatter(coefficients)
-
+            _ = scan.scatter(coefficients)
 
     def test_validate_truncated_layout_rejects_nan_in_dropped_slot(self) -> None:
         layout = np.zeros((8, 8), dtype=np.float32)
@@ -270,13 +268,13 @@ class TestBlockedDctImageCoefficientCount:
         value = np.zeros((8, 8), dtype=np.float32)
         value[7, 7] = 1.0
         with pytest.raises(ValueError, match="must be zero"):
-            BlockedDctImage(value=value, block_size=8, coefficient_count=15)
+            _ = BlockedDctImage(value=value, block_size=8, coefficient_count=15)
 
     @pytest.mark.parametrize("coefficient_count", [0, 65])
     def test_rejects_out_of_range_count(self, coefficient_count: int) -> None:
         value = np.zeros((8, 8), dtype=np.float32)
         with pytest.raises(ValueError, match="coefficient_count must be in"):
-            BlockedDctImage(
+            _ = BlockedDctImage(
                 value=value,
                 block_size=8,
                 coefficient_count=coefficient_count,
@@ -339,18 +337,18 @@ class TestZigzagDctCoefficients:
             block_size=8,
         ).to_blocked()
         with pytest.raises(ValueError, match=r"must be in \[1, 15\]"):
-            ZigzagDctCoefficients.from_blocked(truncated, 16)
+            _ = ZigzagDctCoefficients.from_blocked(truncated, 16)
 
     def test_rejects_non_3d_value(self) -> None:
         with pytest.raises(ValueError, match="must have shape"):
-            ZigzagDctCoefficients(
+            _ = ZigzagDctCoefficients(
                 value=np.zeros((8, 8), dtype=np.float32),
                 block_size=8,
             )
 
     def test_rejects_non_float32_value(self) -> None:
         with pytest.raises(ValueError, match="float32"):
-            ZigzagDctCoefficients(
+            _ = ZigzagDctCoefficients(
                 value=np.zeros((1, 1, 15), dtype=np.float64),
                 block_size=8,
             )
@@ -358,7 +356,7 @@ class TestZigzagDctCoefficients:
     @pytest.mark.parametrize("coefficient_count", [0, 65])
     def test_rejects_out_of_range_count(self, coefficient_count: int) -> None:
         with pytest.raises(ValueError, match="coefficient_count must be in"):
-            ZigzagDctCoefficients(
+            _ = ZigzagDctCoefficients(
                 value=np.zeros((1, 1, coefficient_count), dtype=np.float32),
                 block_size=8,
             )
@@ -386,7 +384,7 @@ class TestZigzagDctCoefficients:
         source_shape: tuple[int, int],
     ) -> None:
         with pytest.raises(ValueError, match="must be positive and fit"):
-            ZigzagDctCoefficients(
+            _ = ZigzagDctCoefficients(
                 value=np.zeros((2, 3, 15), dtype=np.float32),
                 block_size=8,
                 source_shape=source_shape,

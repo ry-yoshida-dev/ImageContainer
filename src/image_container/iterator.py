@@ -3,20 +3,19 @@ from __future__ import annotations
 from collections.abc import Iterator
 from dataclasses import dataclass, field
 from pathlib import Path
-
-
+from typing import cast
 
 import cv2
 import numpy as np
 from PIL import Image
-from pillow_heif import register_heif_opener  # type: ignore[import-untyped]
+from pillow_heif import register_heif_opener
 
 from .ch_order import ChannelOrder
 from .containers.array import ArrayImageContainer
 from .containers.pil import PILImageContainer
 from .extention import Extention
 from .format import ImageFormat
-
+from .types import UInt8Image
 
 SupportedContainer = ArrayImageContainer | PILImageContainer
 
@@ -128,9 +127,7 @@ class ImageIterator:
             case ImageFormat.PIL:
                 return PILImageContainer.from_path(image_path=image_path)
             case ImageFormat.TORCH_TENSOR:
-                raise NotImplementedError(
-                    "TORCH_TENSOR format is not implemented yet."
-                )
+                raise NotImplementedError("TORCH_TENSOR format is not implemented yet.")
 
     def _create_heic_container(self, image_path: str) -> SupportedContainer:
         """
@@ -158,12 +155,10 @@ class ImageIterator:
                 )
             case ImageFormat.ARRAY:
                 rgb_array = np.array(rgb_image)
-                bgr_array = cv2.cvtColor(rgb_array, cv2.COLOR_RGB2BGR)
+                bgr_array = cast(UInt8Image, cv2.cvtColor(rgb_array, cv2.COLOR_RGB2BGR))
                 return ArrayImageContainer(
                     value=bgr_array,
                     channel_order=ChannelOrder.BGR,
                 )
             case ImageFormat.TORCH_TENSOR:
-                raise NotImplementedError(
-                    "TORCH_TENSOR format is not implemented yet."
-                )
+                raise NotImplementedError("TORCH_TENSOR format is not implemented yet.")

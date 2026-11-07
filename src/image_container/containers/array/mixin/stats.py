@@ -127,5 +127,5 @@ class ArrayStatsMixin(ArrayConvertMixin):
             case _:
                 raise ValueError(
                     "histogram_order must be ChannelOrder.GRAY or ChannelOrder.BGR, "
-                    f"got {histogram_order!r}"
+                    + f"got {histogram_order!r}"
                 )

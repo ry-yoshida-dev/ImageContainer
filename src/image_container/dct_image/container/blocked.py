@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import warnings
+from dataclasses import dataclass
 from functools import cached_property
+from typing import override
 
 import numpy as np
-from dataclasses import dataclass
 
 from ...ch_order import ChannelOrder
 from ...types import BinaryArray, ImageArray, UInt8Image
@@ -44,6 +45,7 @@ class BlockedDctImage(DctImageBase):
     block_size: int
     coefficient_count: int
 
+    @override
     def _validate_transform_specific(self) -> None:
         """
         Validate block_size, spatial divisibility, and coefficient_count.
@@ -85,6 +87,7 @@ class BlockedDctImage(DctImageBase):
         """
         return BlockDctTransform(block_size=self.block_size)
 
+    @override
     def _frequency_radius_squared(self) -> ImageArray:
         """
         Build the tiled per-block squared radial frequency index (u^2 + v^2).
@@ -97,6 +100,7 @@ class BlockedDctImage(DctImageBase):
         height, width = self.value.shape
         return self._block_transform.frequency_radius_squared(height, width)
 
+    @override
     def _apply_inverse_dct(self, coefficients: ImageArray) -> ImageArray:
         """
         Apply block-wise inverse DCT.
@@ -113,6 +117,7 @@ class BlockedDctImage(DctImageBase):
         """
         return self._block_transform.inverse(coefficients)
 
+    @override
     def _clear_dc_components(self, mask: BinaryArray) -> None:
         """
         Clear the DC coefficient at the origin of each block.
@@ -122,8 +127,9 @@ class BlockedDctImage(DctImageBase):
         mask : BinaryArray
             Boolean mask array modified in place.
         """
-        mask[0::self.block_size, 0::self.block_size] = False
+        mask[0 :: self.block_size, 0 :: self.block_size] = False
 
+    @override
     def _with_filtered_coefficients(self, filtered: ImageArray) -> BlockedDctImage:
         """
         Build a BlockedDctImage from filtered coefficients.

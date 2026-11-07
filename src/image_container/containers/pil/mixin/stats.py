@@ -98,7 +98,7 @@ class PILStatsMixin(PILConvertMixin):
             case _:
                 raise ValueError(
                     "histogram_order must be ChannelOrder.GRAY or ChannelOrder.BGR, "
-                    f"got {histogram_order!r}"
+                    + f"got {histogram_order!r}"
                 )
 
     def compute_histogram(
@@ -171,7 +171,7 @@ class PILStatsMixin(PILConvertMixin):
                 case _:
                     raise ValueError(
                         "histogram_order must be ChannelOrder.GRAY or ChannelOrder.BGR, "
-                        f"got {histogram_order!r}"
+                        + f"got {histogram_order!r}"
                     )
 
         return self._histogram_via_opencv(bins, hist_range, mask, histogram_order)

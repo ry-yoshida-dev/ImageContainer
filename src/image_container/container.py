@@ -1,24 +1,26 @@
+# The cycles through this module run only through TYPE_CHECKING or function-local imports.
+# pyright: reportImportCycles=false
 from __future__ import annotations
+
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+from typing import TYPE_CHECKING, Self, override
+
 import numpy as np
 import torch
 from PIL import Image
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, TypeVar, Generic, Self
-
-from .ch_order import ChannelOrder
 from .binary_image import BinaryImage
+from .ch_order import ChannelOrder
 from .format import ImageFormats
 from .types import UInt8Image
 
 if TYPE_CHECKING:
     from .containers import ImageContainerType
 
-T = TypeVar("T", UInt8Image, Image.Image, torch.Tensor)
 
 @dataclass(frozen=True)
-class ImageContainer(ABC, Generic[T]):
+class ImageContainer[T: (UInt8Image, Image.Image, torch.Tensor)](ABC):
     """
     Base class for image containers.
 
@@ -29,6 +31,7 @@ class ImageContainer(ABC, Generic[T]):
     channel_order: ChannelOrder
         The channel order of the image.
     """
+
     value: T
     channel_order: ChannelOrder
 
@@ -100,29 +103,23 @@ class ImageContainer(ABC, Generic[T]):
         """
 
     @abstractmethod
-    def crop(
-        self, 
-        crop_slice: tuple[slice, slice]
-        ) -> Self:
+    def crop(self, crop_slice: tuple[slice, slice]) -> Self:
         """
         Crop the image.
 
-        Parameters:
+        Parameters
         ----------
         crop_slice: tuple[slice, slice]
             The slice to crop the image(y_slice, x_slice).
             example: [100:200, 300:400]
 
-        Returns:
-        ----------
+        Returns
+        -------
         Self: The cropped image container.
         """
 
     @abstractmethod
-    def to_ch_swapped_image(
-        self,
-        output_order: ChannelOrder
-        ) -> ImageFormats:
+    def to_ch_swapped_image(self, output_order: ChannelOrder) -> ImageFormats:
         """
         Get the image with the channel order swapped.
 
@@ -142,10 +139,7 @@ class ImageContainer(ABC, Generic[T]):
         """
 
     @abstractmethod
-    def to_array(
-        self,
-        ch_order: ChannelOrder = ChannelOrder.BGR
-        ) -> UInt8Image:
+    def to_array(self, ch_order: ChannelOrder = ChannelOrder.BGR) -> UInt8Image:
         """
         Get the image with the array format in the specified channel order.
 
@@ -163,84 +157,72 @@ class ImageContainer(ABC, Generic[T]):
         If the input has 3 channels, it will be converted to gray first.
         """
 
+    @override
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(shape={self.shape}, width={self.width}, height={self.height})"
 
     @classmethod
     @abstractmethod
-    def from_path(
-        cls,
-        image_path: str
-        ) -> Self:
+    def from_path(cls, image_path: str) -> Self:
         """
         Create an image container from an image path.
 
-        Parameters:
+        Parameters
         ----------
         image_path: str
             The path to the image.
 
-        Returns:
-        ----------
+        Returns
+        -------
         Self: The image container.
         """
 
     @classmethod
     def register(
-        cls,
-        image: ImageFormats,
-        channel_order: ChannelOrder
-        ) -> ImageContainerType:
+        cls, image: ImageFormats, channel_order: ChannelOrder
+    ) -> ImageContainerType:
         """
         Register the image container.
 
-        Parameters:
+        Parameters
         ----------
         image: ImageFormats
             The image to register.
         channel_order: ChannelOrder
             The channel order of the image.
 
-        Returns:
-        ----------
+        Returns
+        -------
         ImageContainerType:
             The registered image container.
 
-        Raises:
-        ----------
+        Raises
+        ------
         ValueError:
             If the image is not a NumPy array, PIL image, or torch tensor.
         """
         if isinstance(image, np.ndarray):
             from .containers.array import ArrayImageContainer
-            return ArrayImageContainer(
-                value=image,
-                channel_order=channel_order
-                )
+
+            return ArrayImageContainer(value=image, channel_order=channel_order)
         elif isinstance(image, Image.Image):
             from .containers.pil import PILImageContainer
-            return PILImageContainer(
-                value=image,
-                channel_order=channel_order
-                )
-        elif isinstance(image, torch.Tensor):
+
+            return PILImageContainer(value=image, channel_order=channel_order)
+        # Untyped callers can pass anything, so keep the runtime guard the types make look redundant.
+        elif isinstance(image, torch.Tensor):  # pyright: ignore[reportUnnecessaryIsInstance]
             from .containers.tensor import TensorImageContainer
-            return TensorImageContainer(
-                value=image,
-                channel_order=channel_order
-                )
+
+            return TensorImageContainer(value=image, channel_order=channel_order)
         else:
-            raise ValueError(f"Unsupported image type: {type(image).__name__}")
+            raise ValueError(f"Unsupported image type: {type(image).__name__}")  # pyright: ignore[reportUnreachable]
 
     @abstractmethod
-    def save(
-        self,
-        save_path: str
-        ) -> None:
+    def save(self, save_path: str) -> None:
         """
         Save the image to a path.
-        
-        Parameters:
+
+        Parameters
         ----------
         save_path: str
             The path to save the image.

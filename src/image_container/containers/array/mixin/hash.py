@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import cv2
 from collections.abc import Callable
 from typing import Protocol, cast
+
+import cv2
 
 from ....ch_order import ChannelOrder
 from ....types import ImageArray, UInt8Image
@@ -22,6 +23,7 @@ class ImgHashComputer(Protocol):
     """
 
     def compute(self, img: UInt8Image) -> ImageArray:
+        """Compute the hash of a BGR image array."""
         ...
 
 
@@ -64,6 +66,7 @@ class ArrayHashMixin(ArrayConvertMixin):
         hash_bytes: ImageArray = hasher.compute(bgr)
         return hash_bytes
 
+    # The opencv-contrib stubs omit the cv2.img_hash factories, hence the narrow ignores below.
     @property
     def phash(self) -> ImageArray:
         """
@@ -74,7 +77,7 @@ class ArrayHashMixin(ArrayConvertMixin):
         ImageArray
             Hash array with shape (1, 8) and dtype uint8.
         """
-        return self._compute_img_hash(cv2.img_hash.PHash_create)  # type: ignore[attr-defined]
+        return self._compute_img_hash(cv2.img_hash.PHash_create)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
 
     @property
     def average_hash(self) -> ImageArray:
@@ -86,7 +89,7 @@ class ArrayHashMixin(ArrayConvertMixin):
         ImageArray
             Hash array with shape (1, 8) and dtype uint8.
         """
-        return self._compute_img_hash(cv2.img_hash.AverageHash_create)  # type: ignore[attr-defined]
+        return self._compute_img_hash(cv2.img_hash.AverageHash_create)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
 
     @property
     def block_mean_hash(self) -> ImageArray:
@@ -98,7 +101,7 @@ class ArrayHashMixin(ArrayConvertMixin):
         ImageArray
             Hash array with shape (1, 32) and dtype uint8.
         """
-        return self._compute_img_hash(cv2.img_hash.BlockMeanHash_create)  # type: ignore[attr-defined]
+        return self._compute_img_hash(cv2.img_hash.BlockMeanHash_create)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
 
     @property
     def color_moment_hash(self) -> ImageArray:
@@ -110,7 +113,7 @@ class ArrayHashMixin(ArrayConvertMixin):
         ImageArray
             Hash array with shape (1, 42) and dtype float64.
         """
-        return self._compute_img_hash(cv2.img_hash.ColorMomentHash_create)  # type: ignore[attr-defined]
+        return self._compute_img_hash(cv2.img_hash.ColorMomentHash_create)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
 
     @property
     def marr_hildreth_hash(self) -> ImageArray:
@@ -122,7 +125,7 @@ class ArrayHashMixin(ArrayConvertMixin):
         ImageArray
             Hash array with shape (1, 72) and dtype uint8.
         """
-        return self._compute_img_hash(cv2.img_hash.MarrHildrethHash_create)  # type: ignore[attr-defined]
+        return self._compute_img_hash(cv2.img_hash.MarrHildrethHash_create)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]
 
     @property
     def radial_variance_hash(self) -> ImageArray:
@@ -134,4 +137,4 @@ class ArrayHashMixin(ArrayConvertMixin):
         ImageArray
             Hash array with shape (1, 40) and dtype uint8.
         """
-        return self._compute_img_hash(cv2.img_hash.RadialVarianceHash_create)  # type: ignore[attr-defined]
+        return self._compute_img_hash(cv2.img_hash.RadialVarianceHash_create)  # type: ignore[attr-defined]  # pyright: ignore[reportAttributeAccessIssue, reportUnknownMemberType, reportUnknownArgumentType]

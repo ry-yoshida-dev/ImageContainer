@@ -17,8 +17,9 @@ class ArrayGeometryMixin:
     class instead.
     """
 
-    value: UInt8Image
-    channel_order: ChannelOrder
+    # Provided by the dataclass that mixes this class in.
+    value: UInt8Image  # pyright: ignore[reportUninitializedInstanceVariable]
+    channel_order: ChannelOrder  # pyright: ignore[reportUninitializedInstanceVariable]
 
     @property
     def shape(self) -> tuple[int, int, int]:

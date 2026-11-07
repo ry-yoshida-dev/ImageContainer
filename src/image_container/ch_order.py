@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-import cv2
-
 from collections.abc import Callable
 from enum import Enum
 from functools import reduce
+from typing import cast
+
+import cv2
 
 from .types import UInt8Image
 
@@ -129,7 +130,7 @@ class ChannelOrder(Enum):
         if not codes:
             return lambda img: img.copy()
         return lambda img: reduce(
-            lambda acc, code: cv2.cvtColor(acc, code),
+            lambda acc, code: cast(UInt8Image, cv2.cvtColor(acc, code)),
             codes,
             img,
         )

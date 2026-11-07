@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import cast
+
 import cv2
 
 from ..types import UInt8Image
@@ -45,13 +47,17 @@ def padding_to_even(
     ):
         return array, None
 
-    padded = cv2.copyMakeBorder(
-        array,
-        top=0,
-        bottom=pad_bottom,
-        left=0,
-        right=pad_right,
-        borderType=cv2.BORDER_REPLICATE,
+    # copyMakeBorder keeps the uint8 dtype of its input.
+    padded = cast(
+        UInt8Image,
+        cv2.copyMakeBorder(
+            array,
+            top=0,
+            bottom=pad_bottom,
+            left=0,
+            right=pad_right,
+            borderType=cv2.BORDER_REPLICATE,
+        ),
     )
     return padded, (height, width)
 
@@ -96,12 +102,16 @@ def padding_to_block_size(
     if pad_bottom == 0 and pad_right == 0:
         return array, None
 
-    padded = cv2.copyMakeBorder(
-        array,
-        top=0,
-        bottom=pad_bottom,
-        left=0,
-        right=pad_right,
-        borderType=cv2.BORDER_REPLICATE,
+    # copyMakeBorder keeps the uint8 dtype of its input.
+    padded = cast(
+        UInt8Image,
+        cv2.copyMakeBorder(
+            array,
+            top=0,
+            bottom=pad_bottom,
+            left=0,
+            right=pad_right,
+            borderType=cv2.BORDER_REPLICATE,
+        ),
     )
     return padded, (height, width)

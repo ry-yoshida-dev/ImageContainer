@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from dataclasses import dataclass
 
 import cv2
 import numpy as np
-from dataclasses import dataclass
 
 from ...types import ImageArray
 

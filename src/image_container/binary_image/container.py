@@ -1,14 +1,16 @@
 from __future__ import annotations
-import cv2
-import numpy as np
+
 from dataclasses import dataclass
 from typing import Any, cast
 
+import cv2
+import numpy as np
 from numpy.typing import NDArray
 
-from .connectivity import Connectivity
-from .connected_components import ConnectedComponents
 from ..types import BinaryArray
+from .connected_components import ConnectedComponents
+from .connectivity import Connectivity
+
 
 @dataclass
 class BinaryImage:
@@ -20,19 +22,22 @@ class BinaryImage:
     value: BinaryArray
         The binary image represented as a 2D array of shape (height, width).
     """
+
     value: BinaryArray
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """
         Post-initialization validation.
-        
+
         Raises
         ------
         ValueError: If the binary image is not a 2D array.
         ValueError: If the binary image contains values other than 0/1 or True/False.
         """
         if self.value.ndim != 2:
-            raise ValueError(f"Binary image must have 2 dimensions, got {self.value.ndim}")
+            raise ValueError(
+                f"Binary image must have 2 dimensions, got {self.value.ndim}"
+            )
 
         unique_values = np.unique(self.value)
         if not np.all(np.isin(unique_values, [0, 1])):
@@ -42,9 +47,8 @@ class BinaryImage:
         self.value = self.value.astype(bool)
 
     def connected_components(
-        self, 
-        connectivity: Connectivity = Connectivity.EIGHT
-        ) -> ConnectedComponents:
+        self, connectivity: Connectivity = Connectivity.EIGHT
+    ) -> ConnectedComponents:
         """
         Get the connected components of the binary image.
 
@@ -79,7 +83,7 @@ class BinaryImage:
         int: The sum of the True(1) values in the binary image.
         """
         return int(np.sum(self.value))
-    
+
     @property
     def mean(self) -> float:
         """
@@ -90,7 +94,7 @@ class BinaryImage:
         float: The mean of the True(1) and False(0) values in the binary image.
         """
         return float(np.mean(self.value))
-    
+
     @property
     def shape(self) -> tuple[int, int]:
         """
@@ -101,7 +105,7 @@ class BinaryImage:
         tuple[int, int]: The shape(height, width) of the binary image.
         """
         return self.value.shape
-    
+
     @property
     def width(self) -> int:
         """
@@ -112,7 +116,7 @@ class BinaryImage:
         int: The width of the binary image.
         """
         return self.shape[1]
-    
+
     @property
     def height(self) -> int:
         """
@@ -123,7 +127,7 @@ class BinaryImage:
         int: The height of the binary image.
         """
         return self.shape[0]
-    
+
     @property
     def size(self) -> tuple[int, int]:
         """
@@ -134,5 +138,3 @@ class BinaryImage:
         tuple[int, int]: The size(width, height) of the binary image.
         """
         return (self.width, self.height)
-
-    

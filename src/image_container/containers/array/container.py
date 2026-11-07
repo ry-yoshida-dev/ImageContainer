@@ -1,16 +1,23 @@
+# The cycles through this module run only through TYPE_CHECKING or function-local imports.
+# pyright: reportImportCycles=false
 from __future__ import annotations
 
 import os
-
-import numpy as np
+from typing import override
 
 import cv2
+import numpy as np
 
 from ...ch_order import ChannelOrder
 from ...container import ImageContainer
 from ...format import ImageFormat
 from ...types import UInt8Image
-from .mixin import ArrayFilterMixin, ArrayGeometryMixin, ArrayProcessMixin, ArrayStatsMixin
+from .mixin import (
+    ArrayFilterMixin,
+    ArrayGeometryMixin,
+    ArrayProcessMixin,
+    ArrayStatsMixin,
+)
 from .mixin.hash import ArrayHashMixin
 from .protocols import SupportsArrayHash
 
@@ -27,7 +34,7 @@ class ArrayImageContainer(
     """
     Container class for numpy arrays.
 
-    Attributes:
+    Attributes
     ----------
     value: UInt8Image
         The numpy array.
@@ -47,11 +54,12 @@ class ArrayImageContainer(
         """The image format (ARRAY)."""
         return ImageFormat.ARRAY
 
+    @override
     def _validate_image(self) -> None:
         """
         Validate the image.
 
-        Parameters:
+        Parameters
         ----------
         image: UInt8Image
             The image to validate.
@@ -69,13 +77,16 @@ class ArrayImageContainer(
             if self.value.ndim != 3:
                 raise ValueError(f"Image must have 3 dimensions. Got {self.value.ndim}")
             if self.value.shape[2] != 3:
-                raise ValueError(f"Image must have 3 channels. Got {self.value.shape[2]}")
+                raise ValueError(
+                    f"Image must have 3 channels. Got {self.value.shape[2]}"
+                )
         if self.channel_order.is_1ch:
             if self.value.ndim != 2:
                 raise ValueError(f"Image must have 2 dimensions. Got {self.value.ndim}")
         if self.value.dtype != np.uint8:
             raise ValueError(f"Image must have uint8 dtype. Got {self.value.dtype}")
 
+    @override
     def save(self, save_path: str) -> None:
         """
         Save with cv2.imwrite.
@@ -95,53 +106,49 @@ class ArrayImageContainer(
         if not cv2.imwrite(save_path, to_write):
             raise OSError(f"Failed to write image to {save_path}")
 
-    def crop(
-        self,
-        crop_slice: tuple[slice, slice]
-        ) -> ArrayImageContainer:
+    @override
+    def crop(self, crop_slice: tuple[slice, slice]) -> ArrayImageContainer:
         """
         Crop the image.
 
-        Parameters:
+        Parameters
         ----------
         crop_slice: tuple[slice, slice]
             The slice to crop the image(y_slice, x_slice).
             example: (slice(100, 200), slice(300, 400))
 
-        Returns:
-        ----------
+        Returns
+        -------
         ArrayImageContainer: The cropped image container.
         """
         return ArrayImageContainer(
-            value=self.value[crop_slice],
-            channel_order=self.channel_order
-            )
+            value=self.value[crop_slice], channel_order=self.channel_order
+        )
 
+    @override
     def __str__(self) -> str:
         return f"{self.__class__.__name__}(shape={self.shape}, width={self.width}, height={self.height}, channel_order={self.channel_order})"
 
     @classmethod
+    @override
     def from_path(
         cls,
         image_path: str,
-        ) -> ArrayImageContainer:
+    ) -> ArrayImageContainer:
         """
         Create an array image container from an image path.
 
-        Parameters:
+        Parameters
         ----------
         image_path: str
             The path to the image.
 
-        Returns:
-        ----------
+        Returns
+        -------
         ArrayImageContainer: The array image container.
         """
         image = cv2.imread(image_path)
         if image is None:
             raise FileNotFoundError(f"Image not found at {image_path}")
         channel_order = ChannelOrder.BGR
-        return cls(
-            value=np.asarray(image, dtype=np.uint8),
-            channel_order=channel_order
-            )
+        return cls(value=np.asarray(image, dtype=np.uint8), channel_order=channel_order)

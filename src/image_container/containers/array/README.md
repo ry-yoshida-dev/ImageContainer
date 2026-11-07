@@ -23,7 +23,7 @@ from image_container.containers.array.container import ArrayImageContainer
 image = np.zeros((64, 64, 3), dtype=np.uint8)
 container = ArrayImageContainer(value=image, channel_order=ChannelOrder.BGR)
 
-gray = container.to_gray()                  # shape (64, 64)
+gray = container.to_gray()  # shape (64, 64)
 equalized = container.equalize_histogram()  # shape (64, 64, 3)
-phash = container.phash                     # shape (1, 8), dtype uint8
+phash = container.phash  # shape (1, 8), dtype uint8
 ```

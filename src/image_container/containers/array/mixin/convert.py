@@ -17,8 +17,9 @@ class ArrayConvertMixin:
     - NonBlockedDctImage / BlockedDctImage
     """
 
-    value: UInt8Image
-    channel_order: ChannelOrder
+    # Provided by the dataclass that mixes this class in.
+    value: UInt8Image  # pyright: ignore[reportUninitializedInstanceVariable]
+    channel_order: ChannelOrder  # pyright: ignore[reportUninitializedInstanceVariable]
 
     def to_gray(self) -> UInt8Image:
         """
@@ -49,7 +50,7 @@ class ArrayConvertMixin:
         """
         match self.channel_order:
             case ChannelOrder.BGR:
-                return Image.fromarray(self.value[..., [2, 1, 0]], mode='RGB')
+                return Image.fromarray(self.value[..., [2, 1, 0]], mode="RGB")
             case ChannelOrder.GRAY:
                 return Image.fromarray(
                     self.to_gray(),
@@ -57,16 +58,13 @@ class ArrayConvertMixin:
                 )
             case ChannelOrder.HSV:
                 bgr: UInt8Image = self.to_array(ChannelOrder.BGR)
-                return Image.fromarray(bgr[..., [2, 1, 0]], mode='RGB')
+                return Image.fromarray(bgr[..., [2, 1, 0]], mode="RGB")
             case ChannelOrder.LAB:
                 return Image.fromarray(self.value, mode=ChannelOrder.LAB.pil_mode)
             case ChannelOrder.RGB:
-                return Image.fromarray(self.value, mode='RGB')
+                return Image.fromarray(self.value, mode="RGB")
 
-    def to_array(
-        self,
-        ch_order: ChannelOrder = ChannelOrder.BGR
-        ) -> UInt8Image:
+    def to_array(self, ch_order: ChannelOrder = ChannelOrder.BGR) -> UInt8Image:
         """
         Get the array image.
 
@@ -137,13 +135,12 @@ class ArrayConvertMixin:
         )
 
     def to_ch_swapped_image(
-        self,
-        output_order: ChannelOrder = ChannelOrder.BGR
-        ) -> UInt8Image:
+        self, output_order: ChannelOrder = ChannelOrder.BGR
+    ) -> UInt8Image:
         """
         Get the channel swapped image.
 
-        Parameters:
+        Parameters
         ----------
         output_order: ChannelOrder
             The output channel order to get the image.

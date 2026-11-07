@@ -16,8 +16,9 @@ class PILConvertMixin:
     - PIL with reordered channels
     """
 
-    value: Image.Image
-    channel_order: ChannelOrder
+    # Provided by the dataclass that mixes this class in.
+    value: Image.Image  # pyright: ignore[reportUninitializedInstanceVariable]
+    channel_order: ChannelOrder  # pyright: ignore[reportUninitializedInstanceVariable]
 
     def to_gray(self) -> Image.Image:
         """
@@ -29,8 +30,9 @@ class PILConvertMixin:
 
     def to_3ch(self) -> Image.Image:
         """
-        Pillow image in the 3-channel mode for this container's
-        channel_order (RGB triplet storage, HSV, or LAB).
+        Pillow image in the 3-channel mode for this container's channel_order.
+
+        The mode is the RGB triplet storage, HSV, or LAB.
 
         A gray container is promoted to RGB (triplets replicate luminance).
         """
@@ -70,10 +72,7 @@ class PILConvertMixin:
         """
         return self.value
 
-    def to_array(
-        self,
-        ch_order: ChannelOrder = ChannelOrder.BGR
-        ) -> UInt8Image:
+    def to_array(self, ch_order: ChannelOrder = ChannelOrder.BGR) -> UInt8Image:
         """
         Get the array image.
 
@@ -108,14 +107,11 @@ class PILConvertMixin:
         gray = np.asarray(self.to_gray())
         return BinaryImage(value=(gray >= threshold))
 
-    def to_ch_swapped_image(
-        self,
-        output_order: ChannelOrder
-        ) -> Image.Image:
+    def to_ch_swapped_image(self, output_order: ChannelOrder) -> Image.Image:
         """
         Get the channel swapped image.
 
-        Parameters:
+        Parameters
         ----------
         output_order: ChannelOrder
             The output channel order to get the image.

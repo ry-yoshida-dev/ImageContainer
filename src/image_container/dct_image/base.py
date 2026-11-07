@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Self
 
 import cv2
 import numpy as np
-from dataclasses import dataclass
 
 from ..types import BinaryArray, ImageArray
 

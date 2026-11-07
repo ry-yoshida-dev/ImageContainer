@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import override
 
 from PIL import Image
 
@@ -21,7 +22,7 @@ class PILImageContainer(
     """
     Container class for PIL images.
 
-    Attributes:
+    Attributes
     ----------
     value: Image.Image
         The PIL image.
@@ -29,12 +30,13 @@ class PILImageContainer(
         The channel order of the image.
     """
 
+    @override
     def _validate_image(self) -> None:
         expected = self.channel_order.pil_mode
         if self.value.mode != expected:
             raise ValueError(
                 f"channel_order={self.channel_order} expects image.mode={expected!r}, "
-                f"got {self.value.mode!r}"
+                + f"got {self.value.mode!r}"
             )
 
     @property
@@ -42,6 +44,7 @@ class PILImageContainer(
         """The image format (PIL)."""
         return ImageFormat.PIL
 
+    @override
     def save(self, save_path: str) -> None:
         """
         Save the image to a path.
@@ -56,21 +59,19 @@ class PILImageContainer(
             os.makedirs(dir_name, exist_ok=True)
         self.value.save(save_path)
 
-    def crop(
-        self,
-        crop_slice: tuple[slice, slice]
-        ) -> PILImageContainer:
+    @override
+    def crop(self, crop_slice: tuple[slice, slice]) -> PILImageContainer:
         """
         Crop the image.
 
-        Parameters:
+        Parameters
         ----------
         crop_slice: tuple[slice, slice]
             The slice to crop the image(y_slice, x_slice).
             example: [100:200, 300:400]
 
-        Returns:
-        ----------
+        Returns
+        -------
         PILImageContainer: The cropped image container.
         """
         y_slice, x_slice = crop_slice
@@ -80,31 +81,26 @@ class PILImageContainer(
         lower = y_slice.stop or self.value.height
 
         cropped_image = self.value.crop((left, upper, right, lower))
-        return PILImageContainer(
-            value=cropped_image,
-            channel_order=self.channel_order
-            )
+        return PILImageContainer(value=cropped_image, channel_order=self.channel_order)
 
     @classmethod
+    @override
     def from_path(
         cls,
         image_path: str,
-        ) -> PILImageContainer:
+    ) -> PILImageContainer:
         """
         Create a PIL image container from an image path.
 
-        Parameters:
+        Parameters
         ----------
         image_path: str
             The path to the image.
 
-        Returns:
-        ----------
+        Returns
+        -------
         PILImageContainer: The PIL image container.
         """
         image = Image.open(image_path)
         channel_order = ChannelOrder.RGB
-        return cls(
-            value=image,
-            channel_order=channel_order
-            )
+        return cls(value=image, channel_order=channel_order)

@@ -1,9 +1,11 @@
 from enum import Enum
 
+
 class Extention(Enum):
     """
     Extention of the image.
     """
+
     PNG = "png"
     JPG = "jpg"
     JPEG = "jpeg"
@@ -26,9 +28,21 @@ class Extention(Enum):
             True when the extension is commonly used with lossless encoding.
         """
         match self:
-            case Extention.PNG | Extention.TIFF | Extention.TIF | Extention.BMP | Extention.GIF:
+            case (
+                Extention.PNG
+                | Extention.TIFF
+                | Extention.TIF
+                | Extention.BMP
+                | Extention.GIF
+            ):
                 return True
-            case Extention.JPG | Extention.JPEG | Extention.HEIC | Extention.WEBP | Extention.AVIF:
+            case (
+                Extention.JPG
+                | Extention.JPEG
+                | Extention.HEIC
+                | Extention.WEBP
+                | Extention.AVIF
+            ):
                 return False
 
     @property
@@ -42,7 +56,19 @@ class Extention(Enum):
             True when alpha/transparency is commonly supported.
         """
         match self:
-            case Extention.PNG | Extention.GIF | Extention.HEIC | Extention.WEBP | Extention.AVIF:
+            case (
+                Extention.PNG
+                | Extention.GIF
+                | Extention.HEIC
+                | Extention.WEBP
+                | Extention.AVIF
+            ):
                 return True
-            case Extention.JPG | Extention.JPEG | Extention.TIFF | Extention.TIF | Extention.BMP:
+            case (
+                Extention.JPG
+                | Extention.JPEG
+                | Extention.TIFF
+                | Extention.TIF
+                | Extention.BMP
+            ):
                 return False

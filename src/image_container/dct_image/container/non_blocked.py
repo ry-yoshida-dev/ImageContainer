@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import warnings
+from dataclasses import dataclass
+from typing import override
 
 import cv2
 import numpy as np
-from dataclasses import dataclass
 
 from ...ch_order import ChannelOrder
 from ...types import BinaryArray, ImageArray, UInt8Image
@@ -26,9 +27,11 @@ class NonBlockedDctImage(DctImageBase):
         When set, idct crops the restored image back to this shape.
     """
 
+    @override
     def _validate_transform_specific(self) -> None:
         """Non-blocked DCT has no additional validation."""
 
+    @override
     def _frequency_radius_squared(self) -> ImageArray:
         """
         Build the global squared radial frequency index (u^2 + v^2).
@@ -43,6 +46,7 @@ class NonBlockedDctImage(DctImageBase):
         u_indices = np.arange(width, dtype=np.float32)[np.newaxis, :]
         return (u_indices**2) + (v_indices**2)
 
+    @override
     def _apply_inverse_dct(self, coefficients: ImageArray) -> ImageArray:
         """
         Apply global inverse DCT.
@@ -59,6 +63,7 @@ class NonBlockedDctImage(DctImageBase):
         """
         return cv2.idct(coefficients)
 
+    @override
     def _clear_dc_components(self, mask: BinaryArray) -> None:
         """
         Clear the global DC coefficient at (0, 0).
@@ -70,6 +75,7 @@ class NonBlockedDctImage(DctImageBase):
         """
         mask[0, 0] = False
 
+    @override
     def _with_filtered_coefficients(self, filtered: ImageArray) -> NonBlockedDctImage:
         """
         Build a NonBlockedDctImage from filtered coefficients.

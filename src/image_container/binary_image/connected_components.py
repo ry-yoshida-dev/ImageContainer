@@ -21,6 +21,7 @@ class ConnectedComponents:
     centroids: NDArray[np.floating[Any]]
         Per-label centroid coordinates (n_labels, 2), dtype typically float64.
     """
+
     n_labels: int
     labels: NDArray[np.integer[Any]]
     stats: NDArray[np.integer[Any]]

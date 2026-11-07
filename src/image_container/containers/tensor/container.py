@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import override
 
 import cv2
 import numpy as np
@@ -25,7 +26,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
     crop and channel-order operations, and only crosses to the CPU for
     operations only OpenCV/Pillow provide (to_PIL, to_array, to_binary, save).
 
-    Attributes:
+    Attributes
     ----------
     value: torch.Tensor
         The tensor, shaped (C, H, W).
@@ -33,6 +34,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         The channel order of the image.
     """
 
+    @override
     def _validate_image(self) -> None:
         """
         Validate the image.
@@ -45,7 +47,9 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
             If the tensor does not have uint8 dtype.
         """
         if self.value.ndim != 3:
-            raise ValueError(f"Image must have 3 dimensions (C, H, W). Got {self.value.ndim}")
+            raise ValueError(
+                f"Image must have 3 dimensions (C, H, W). Got {self.value.ndim}"
+            )
         expected_channels = 1 if self.channel_order.is_1ch else 3
         if self.value.shape[0] != expected_channels:
             raise ValueError(
@@ -60,6 +64,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         return ImageFormat.TORCH_TENSOR
 
     @property
+    @override
     def shape(self) -> tuple[int, int, int]:
         """
         Get the shape of the image.
@@ -72,6 +77,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         return (height, width, channels)
 
     @property
+    @override
     def width(self) -> int:
         """
         Get the width of the image.
@@ -83,6 +89,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         return int(self.value.shape[2])
 
     @property
+    @override
     def height(self) -> int:
         """
         Get the height of the image.
@@ -94,6 +101,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         return int(self.value.shape[1])
 
     @property
+    @override
     def size(self) -> tuple[int, int]:
         """
         Get the size of the image.
@@ -105,6 +113,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         return (self.width, self.height)
 
     @property
+    @override
     def ch(self) -> int:
         """
         Get the number of channels of the image.
@@ -115,33 +124,31 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         """
         return int(self.value.shape[0])
 
-    def crop(
-        self,
-        crop_slice: tuple[slice, slice]
-        ) -> TensorImageContainer:
+    @override
+    def crop(self, crop_slice: tuple[slice, slice]) -> TensorImageContainer:
         """
         Crop the image.
 
-        Parameters:
+        Parameters
         ----------
         crop_slice: tuple[slice, slice]
             The slice to crop the image(y_slice, x_slice).
             example: (slice(100, 200), slice(300, 400))
 
-        Returns:
-        ----------
+        Returns
+        -------
         TensorImageContainer: The cropped image container, on the same device.
         """
         y_slice, x_slice = crop_slice
         return TensorImageContainer(
             value=self.value[:, y_slice, x_slice].contiguous(),
             channel_order=self.channel_order,
-            )
+        )
 
+    @override
     def to_ch_swapped_image(
-        self,
-        output_order: ChannelOrder = ChannelOrder.BGR
-        ) -> torch.Tensor:
+        self, output_order: ChannelOrder = ChannelOrder.BGR
+    ) -> torch.Tensor:
         """
         Get the channel swapped image.
 
@@ -154,7 +161,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         a decoded frame is megabytes and this is asked for it several times per
         frame -- once for the detector, once per downstream crop batch.
 
-        Parameters:
+        Parameters
         ----------
         output_order: ChannelOrder
             The output channel order to get the image.
@@ -171,6 +178,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         chw = hwc.transpose(2, 0, 1) if hwc.ndim == 3 else hwc[None, ...]
         return torch.as_tensor(np.ascontiguousarray(chw), device=self.value.device)
 
+    @override
     def to_PIL(self) -> Image.Image:
         """
         Get the PIL image(RGB ordered).
@@ -182,23 +190,23 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         match self.channel_order:
             case ChannelOrder.BGR:
                 hwc = self.value.flip(0).permute(1, 2, 0).contiguous().cpu().numpy()
-                return Image.fromarray(hwc, mode='RGB')
+                return Image.fromarray(hwc, mode="RGB")
             case ChannelOrder.RGB:
                 hwc = self.value.permute(1, 2, 0).contiguous().cpu().numpy()
-                return Image.fromarray(hwc, mode='RGB')
+                return Image.fromarray(hwc, mode="RGB")
             case ChannelOrder.GRAY:
-                return Image.fromarray(self.value[0].cpu().numpy(), mode=ChannelOrder.GRAY.pil_mode)
+                return Image.fromarray(
+                    self.value[0].cpu().numpy(), mode=ChannelOrder.GRAY.pil_mode
+                )
             case ChannelOrder.HSV:
                 bgr = self.to_array(ChannelOrder.BGR)
-                return Image.fromarray(bgr[..., ::-1], mode='RGB')
+                return Image.fromarray(bgr[..., ::-1], mode="RGB")
             case ChannelOrder.LAB:
                 hwc = self.value.permute(1, 2, 0).contiguous().cpu().numpy()
                 return Image.fromarray(hwc, mode=ChannelOrder.LAB.pil_mode)
 
-    def to_array(
-        self,
-        ch_order: ChannelOrder = ChannelOrder.BGR
-        ) -> UInt8Image:
+    @override
+    def to_array(self, ch_order: ChannelOrder = ChannelOrder.BGR) -> UInt8Image:
         """
         Get the array image.
 
@@ -214,6 +222,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         convert = ch_order.cv2_array_converter(self.channel_order)
         return convert(hwc)
 
+    @override
     def to_binary(self, threshold: int | float) -> BinaryImage:
         """
         Convert the image into a binary image using a threshold.
@@ -224,6 +233,7 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         gray = self.to_array(ChannelOrder.GRAY)
         return BinaryImage(value=(gray >= threshold))
 
+    @override
     def save(self, save_path: str) -> None:
         """
         Save with cv2.imwrite.
@@ -236,21 +246,27 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         dir_name = os.path.dirname(save_path)
         if dir_name:
             os.makedirs(dir_name, exist_ok=True)
-        to_write = self.to_array(ChannelOrder.GRAY) if self.channel_order.is_1ch else self.to_array(ChannelOrder.BGR)
+        to_write = (
+            self.to_array(ChannelOrder.GRAY)
+            if self.channel_order.is_1ch
+            else self.to_array(ChannelOrder.BGR)
+        )
         if not cv2.imwrite(save_path, to_write):
             raise OSError(f"Failed to write image to {save_path}")
 
+    @override
     def __str__(self) -> str:
         return (
             f"{self.__class__.__name__}(shape={self.shape}, width={self.width}, "
             f"height={self.height}, channel_order={self.channel_order}, device={self.value.device})"
-            )
+        )
 
     @classmethod
+    @override
     def from_path(
         cls,
         image_path: str,
-        ) -> TensorImageContainer:
+    ) -> TensorImageContainer:
         """
         Create a tensor image container from an image path.
 
@@ -258,13 +274,13 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         `VideoBackend.TORCHCODEC` for that -- so this reads through Pillow like
         `PILImageContainer.from_path` and lands on the CPU.
 
-        Parameters:
+        Parameters
         ----------
         image_path: str
             The path to the image.
 
-        Returns:
-        ----------
+        Returns
+        -------
         TensorImageContainer: The tensor image container, on the CPU.
         """
         image = Image.open(image_path).convert("RGB")
@@ -272,4 +288,4 @@ class TensorImageContainer(ImageContainer[torch.Tensor]):
         return cls(
             value=torch.as_tensor(np.ascontiguousarray(chw)),
             channel_order=ChannelOrder.RGB,
-            )
+        )

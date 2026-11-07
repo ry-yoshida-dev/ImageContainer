@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Connectivity(Enum):
     """
     A class to represent connectivity.
@@ -11,5 +12,6 @@ class Connectivity(Enum):
     EIGHT: int
         EIGHT is 8-connectivity.
     """
+
     FOUR = 4
     EIGHT = 8

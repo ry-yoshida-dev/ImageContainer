@@ -17,8 +17,9 @@ class PILGeometryMixin:
     SupportsPILGeometry on the concrete container class instead.
     """
 
-    value: Image.Image
-    channel_order: ChannelOrder
+    # Provided by the dataclass that mixes this class in.
+    value: Image.Image  # pyright: ignore[reportUninitializedInstanceVariable]
+    channel_order: ChannelOrder  # pyright: ignore[reportUninitializedInstanceVariable]
 
     @property
     def shape(self) -> tuple[int, int, int]:
@@ -75,15 +76,15 @@ class PILGeometryMixin:
         """
         mode = self.value.mode
         match mode:
-            case 'L':
+            case "L":
                 return 1
-            case 'RGB':
+            case "RGB":
                 return 3
-            case 'RGBA':
+            case "RGBA":
                 return 4
-            case 'HSV':
+            case "HSV":
                 return 3
-            case 'LAB':
+            case "LAB":
                 return 3
             case _:
                 raise ValueError(f"Unsupported PIL mode: {self.value.mode}")

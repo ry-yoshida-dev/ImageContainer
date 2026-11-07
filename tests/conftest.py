@@ -70,6 +70,6 @@ def temp_image_dir(
     nested.mkdir()
     Image.fromarray(bgr_rgb, mode="RGB").save(nested / "nested_color.jpg")
 
-    (image_dir / "not_an_image.txt").write_text("skip me")
+    _ = (image_dir / "not_an_image.txt").write_text("skip me")
 
     return image_dir

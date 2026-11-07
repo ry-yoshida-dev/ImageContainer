@@ -1,10 +1,9 @@
 from __future__ import annotations
 
+from collections.abc import Callable
 from typing import cast
 
 import cv2
-
-from collections.abc import Callable
 
 from ....ch_order import ChannelOrder
 from ....types import UInt8Image
@@ -71,9 +70,13 @@ class ArrayProcessMixin(ArrayConvertMixin):
             return cast(UInt8Image, clahe.apply(self.value))
 
         clahe = cv2.createCLAHE(clipLimit=clip_limit, tileGridSize=tile_grid_size)
-        return self._lab_with_modified_l(cast(Callable[[UInt8Image], UInt8Image], clahe.apply))
+        return self._lab_with_modified_l(
+            cast(Callable[[UInt8Image], UInt8Image], clahe.apply)
+        )
 
-    def _lab_with_modified_l(self, modify_l: Callable[[UInt8Image], UInt8Image]) -> UInt8Image:
+    def _lab_with_modified_l(
+        self, modify_l: Callable[[UInt8Image], UInt8Image]
+    ) -> UInt8Image:
         """
         Apply a single-channel image function to only the L plane in LAB.
 
@@ -103,6 +106,6 @@ class ArrayProcessMixin(ArrayConvertMixin):
             UInt8Image,
             cv2.merge([modify_l(cast(UInt8Image, l_ch)), a_ch, b_ch]),
         )
-        return ArrayImageContainer(value=merged, channel_order=ChannelOrder.LAB).to_array(
-            self.channel_order
-        )
+        return ArrayImageContainer(
+            value=merged, channel_order=ChannelOrder.LAB
+        ).to_array(self.channel_order)

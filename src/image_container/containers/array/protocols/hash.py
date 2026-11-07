@@ -28,24 +28,30 @@ class SupportsArrayHash(SupportsArrayProcess, Protocol):
 
     @property
     def phash(self) -> ImageArray:
+        """Perceptual hash values."""
         ...
 
     @property
     def average_hash(self) -> ImageArray:
+        """Average hash values."""
         ...
 
     @property
     def block_mean_hash(self) -> ImageArray:
+        """Block mean hash values."""
         ...
 
     @property
     def color_moment_hash(self) -> ImageArray:
+        """Color moment hash values."""
         ...
 
     @property
     def marr_hildreth_hash(self) -> ImageArray:
+        """Marr-Hildreth hash values."""
         ...
 
     @property
     def radial_variance_hash(self) -> ImageArray:
+        """Radial variance hash values."""
         ...

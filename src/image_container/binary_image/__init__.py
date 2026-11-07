@@ -1,8 +1,5 @@
-from .container import BinaryImage
-from .connectivity import Connectivity
 from .connected_components import ConnectedComponents
-__all__ = [
-    "BinaryImage",
-    "Connectivity",
-    "ConnectedComponents"
-    ]
+from .connectivity import Connectivity
+from .container import BinaryImage
+
+__all__ = ["BinaryImage", "Connectivity", "ConnectedComponents"]
