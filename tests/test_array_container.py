@@ -9,6 +9,7 @@ import pytest
 from image_container.ch_order import ChannelOrder
 from image_container.containers.array import ArrayImageContainer
 from image_container.format import ImageFormat
+from image_container.types import UInt8Image
 
 
 class TestArrayImageContainerValidation:
@@ -102,7 +103,7 @@ class TestArrayImageContainerCrop:
 
 
 class TestArrayImageContainerStats:
-    def test_gray_stats(self, gray_array: np.ndarray) -> None:
+    def test_gray_stats(self, gray_array: UInt8Image) -> None:
         container = ArrayImageContainer(
             value=gray_array, channel_order=ChannelOrder.GRAY
         )

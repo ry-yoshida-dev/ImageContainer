@@ -217,7 +217,8 @@ class DctImageBase(ABC):
         tuple[int, int]
             The shape (height, width) of the DCT image.
         """
-        return self.value.shape
+        height, width = self.value.shape
+        return (height, width)
 
     @property
     def width(self) -> int:
@@ -319,7 +320,7 @@ class DctImageBase(ABC):
         ImageArray
             uint8 visualization image.
         """
-        magnitude = np.abs(restored)
+        magnitude: ImageArray = np.abs(restored)
         peak = float(np.max(magnitude))
         trough = float(np.min(magnitude))
         if peak == trough:

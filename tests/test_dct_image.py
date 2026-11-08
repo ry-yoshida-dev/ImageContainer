@@ -14,6 +14,7 @@ from image_container.dct_image import (
 )
 from image_container.dct_image.utils.block_transform import BlockDctTransform
 from image_container.dct_image.utils.zigzag_scan import ZigzagScan
+from image_container.types import ImageArray
 
 JPEG_ZIGZAG_PREFIX_8X8 = [0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5]
 
@@ -75,8 +76,8 @@ class TestNonBlockedDctImage:
         assert ac.dtype == np.float32
         assert dc[0, 0] == container.value[0, 0]
         assert ac[0, 0] == 0.0
-        assert np.all(dc[1:, :] == 0.0)
-        assert np.all(dc[0, 1:] == 0.0)
+        assert np.all(np.equal(dc[1:, :], 0.0))
+        assert np.all(np.equal(dc[0, 1:], 0.0))
         np.testing.assert_allclose(dc + ac, container.value)
 
 
@@ -115,7 +116,7 @@ class TestBlockedDctImage:
         )
         filtered = container.high_pass_filter(threshold=0.0)
         dc_positions = filtered.value[0::block_size, 0::block_size]
-        assert np.all(dc_positions == 0.0)
+        assert np.all(np.equal(dc_positions, 0.0))
 
     def test_dc_and_ac_components_partition_per_block_coefficients(
         self,
@@ -137,7 +138,7 @@ class TestBlockedDctImage:
             dc_positions,
             container.value[0::block_size, 0::block_size],
         )
-        assert np.all(ac[0::block_size, 0::block_size] == 0.0)
+        assert np.all(np.equal(ac[0::block_size, 0::block_size], 0.0))
         np.testing.assert_allclose(dc + ac, container.value)
 
     def test_roundtrip_matches_grayscale(
@@ -153,7 +154,8 @@ class TestBlockedDctImage:
         gray = ChannelOrder.GRAY.cv2_array_converter(ChannelOrder.BGR)(
             bgr_image_even
         ).astype(np.float32)
-        max_error = float(np.max(np.abs(restored - gray)))
+        error: ImageArray = np.abs(restored - gray)
+        max_error = float(np.max(error))
         assert max_error < 1e-3
 
 
@@ -165,7 +167,8 @@ class TestBlockDctTransform:
         transform = BlockDctTransform(block_size=block_size)
         coefficients = transform.forward(gray)
         restored = transform.inverse(coefficients)
-        max_error = float(np.max(np.abs(restored - gray)))
+        error: ImageArray = np.abs(restored - gray)
+        max_error = float(np.max(error))
         assert max_error < 1e-5
 
     def test_from_array_matches_transform(self, bgr_image_even: np.ndarray) -> None:
@@ -180,18 +183,20 @@ class TestBlockDctTransform:
         ).astype(np.float32)
         transform = BlockDctTransform(block_size=block_size)
         expected = transform.forward(gray)
-        max_error = float(np.max(np.abs(container.value - expected)))
+        error: ImageArray = np.abs(container.value - expected)
+        max_error = float(np.max(error))
         assert max_error < 1e-5
 
     def test_matches_per_block_opencv(self) -> None:
         rng = np.random.default_rng(3)
         block_size = 8
-        gray = rng.uniform(0.0, 255.0, (24, 40)).astype(np.float32)
+        height, width = 24, 40
+        gray = rng.uniform(0.0, 255.0, (height, width)).astype(np.float32)
         transform = BlockDctTransform(block_size=block_size)
         coefficients = transform.forward(gray)
         expected = np.zeros_like(gray)
-        for top in range(0, gray.shape[0], block_size):
-            for left in range(0, gray.shape[1], block_size):
+        for top in range(0, height, block_size):
+            for left in range(0, width, block_size):
                 block = gray[top : top + block_size, left : left + block_size]
                 expected[top : top + block_size, left : left + block_size] = cv2.dct(
                     block
@@ -213,7 +218,7 @@ class TestZigzagScan:
     @pytest.mark.parametrize("block_size", [1, 2, 4, 8, 16])
     def test_raster_indices_are_permutation(self, block_size: int) -> None:
         indices = ZigzagScan(block_size=block_size).raster_indices
-        assert sorted(indices.tolist()) == list(range(block_size * block_size))
+        assert np.array_equal(np.sort(indices), np.arange(block_size * block_size))
 
     def test_scatter_zero_fills_missing_slots(self) -> None:
         scan = ZigzagScan(block_size=4)

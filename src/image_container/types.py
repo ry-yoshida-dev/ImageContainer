@@ -1,10 +1,8 @@
 """NumPy array type aliases for image pixel data."""
 
-from typing import Any
-
 import numpy as np
-from numpy.typing import NDArray
 
-type UInt8Image = NDArray[np.uint8]
-type ImageArray = NDArray[np.integer[Any] | np.floating[Any]]
-type BinaryArray = NDArray[np.bool_]
+# A concrete integer shape keeps dimensions typed as int instead of the Any of NDArray.
+type UInt8Image = np.ndarray[tuple[int, ...], np.dtype[np.uint8]]
+type ImageArray = np.ndarray[tuple[int, ...], np.dtype[np.integer | np.floating]]
+type BinaryArray = np.ndarray[tuple[int, ...], np.dtype[np.bool_]]

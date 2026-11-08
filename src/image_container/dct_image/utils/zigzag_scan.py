@@ -181,7 +181,7 @@ class ZigzagScan:
         if coefficient_count == self.coefficient_capacity:
             return
         dropped = flattened_blocks[..., self.raster_indices[coefficient_count:]]
-        if np.any(dropped != 0):
+        if np.any(np.not_equal(dropped, 0)):
             raise ValueError(
                 "Coefficients beyond the leading "
                 + f"{coefficient_count} zigzag slots must be zero"

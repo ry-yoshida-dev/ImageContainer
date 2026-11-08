@@ -44,7 +44,7 @@ class TestChannelOrderConversion:
     def test_bgr_to_rgb(self, bgr_sample: np.ndarray) -> None:
         converter = ChannelOrder.RGB.cv2_array_converter(ChannelOrder.BGR)
         result = converter(bgr_sample)
-        assert result[0, 0].tolist() == [255, 128, 0]
+        assert np.array_equal(result[0, 0, :], [255, 128, 0])
 
     def test_bgr_to_gray(self, bgr_sample: np.ndarray) -> None:
         converter = ChannelOrder.GRAY.cv2_array_converter(ChannelOrder.BGR)
@@ -58,7 +58,7 @@ class TestChannelOrderConversion:
         converter = ChannelOrder.BGR.cv2_array_converter(ChannelOrder.GRAY)
         result = converter(gray)
         assert result.shape == (1, 1, 3)
-        assert np.all(result == 42)
+        assert np.all(np.equal(result, 42))
 
     def test_roundtrip_bgr_rgb_bgr(self, bgr_sample: np.ndarray) -> None:
         to_rgb = ChannelOrder.RGB.cv2_array_converter(ChannelOrder.BGR)

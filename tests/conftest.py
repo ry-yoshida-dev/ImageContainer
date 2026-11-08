@@ -43,13 +43,13 @@ def gray_pil_image(rng: np.random.Generator) -> Image.Image:
 @pytest.fixture
 def bgr_tensor(bgr_array: np.ndarray) -> torch.Tensor:
     """BGR uint8 tensor, shaped (3, 32, 64)."""
-    return torch.from_numpy(np.ascontiguousarray(bgr_array.transpose(2, 0, 1)))
+    return torch.as_tensor(np.ascontiguousarray(bgr_array.transpose(2, 0, 1)))
 
 
 @pytest.fixture
 def gray_tensor(gray_array: np.ndarray) -> torch.Tensor:
     """Grayscale uint8 tensor, shaped (1, 32, 64)."""
-    return torch.from_numpy(gray_array).unsqueeze(0)
+    return torch.as_tensor(gray_array).unsqueeze(0)
 
 
 @pytest.fixture

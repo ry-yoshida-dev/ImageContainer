@@ -8,7 +8,9 @@ from typing import cast
 import cv2
 import numpy as np
 from PIL import Image
-from pillow_heif import register_heif_opener
+
+# pillow_heif annotates register_heif_opener(**kwargs) without a type for kwargs.
+from pillow_heif import register_heif_opener  # pyright: ignore[reportUnknownVariableType]
 
 from .ch_order import ChannelOrder
 from .containers.array import ArrayImageContainer

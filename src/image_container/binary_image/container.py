@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import cast
 
 import cv2
 import numpy as np
@@ -68,9 +68,9 @@ class BinaryImage:
         )
         return ConnectedComponents(
             n_labels=n_labels,
-            labels=cast(NDArray[np.integer[Any]], labels),
-            stats=cast(NDArray[np.integer[Any]], stats),
-            centroids=cast(NDArray[np.floating[Any]], centroids),
+            labels=cast(NDArray[np.int32], labels),
+            stats=cast(NDArray[np.int32], stats),
+            centroids=cast(NDArray[np.float64], centroids),
         )
 
     @property
@@ -104,7 +104,8 @@ class BinaryImage:
         -------
         tuple[int, int]: The shape(height, width) of the binary image.
         """
-        return self.value.shape
+        height, width = self.value.shape
+        return (height, width)
 
     @property
     def width(self) -> int:

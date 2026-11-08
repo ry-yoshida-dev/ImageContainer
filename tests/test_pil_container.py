@@ -104,7 +104,7 @@ class TestPILImageContainerStats:
         container = PILImageContainer(
             value=gray_pil_image, channel_order=ChannelOrder.GRAY
         )
-        gray = np.asarray(gray_pil_image)
+        gray = np.asarray(gray_pil_image, dtype=np.uint8)
         assert container.mean_gray == pytest.approx(float(np.mean(gray)))
         assert container.max_gray == float(np.max(gray))
         assert container.min_gray == float(np.min(gray))

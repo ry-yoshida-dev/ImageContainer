@@ -19,8 +19,8 @@ class TestPaddingToEven:
         assert padded.shape == (34, 66)
         assert source_shape == (33, 65)
         assert np.array_equal(padded[:33, :65], array)
-        assert np.all(padded[33, :] == padded[32, :])
-        assert np.all(padded[:, 65] == padded[:, 64])
+        assert np.array_equal(padded[33, :], padded[32, :])
+        assert np.array_equal(padded[:, 65], padded[:, 64])
 
     def test_rejects_non_2d(self) -> None:
         with pytest.raises(ValueError, match="Array must be 2D"):

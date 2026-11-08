@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from typing import override
+from typing import cast, override
 
 from PIL import Image
 
@@ -75,10 +75,11 @@ class PILImageContainer(
         PILImageContainer: The cropped image container.
         """
         y_slice, x_slice = crop_slice
-        left = x_slice.start or 0
-        upper = y_slice.start or 0
-        right = x_slice.stop or self.value.width
-        lower = y_slice.stop or self.value.height
+        # slice bounds are typed Any; for an image crop they are int | None.
+        left = cast(int | None, x_slice.start) or 0
+        upper = cast(int | None, y_slice.start) or 0
+        right = cast(int | None, x_slice.stop) or self.value.width
+        lower = cast(int | None, y_slice.stop) or self.value.height
 
         cropped_image = self.value.crop((left, upper, right, lower))
         return PILImageContainer(value=cropped_image, channel_order=self.channel_order)
